@@ -10,6 +10,7 @@ import { envSchema } from './config/env.validation';
       isGlobal: true, // No need to import into other modules
       validate: (config) => envSchema.parse(config),
       envFilePath: '.env',
+      expandVariables: true,
     }),
     TrpcModule,
     BlogModule,

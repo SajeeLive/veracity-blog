@@ -31,7 +31,7 @@ steps:
       - "--allow-unauthenticated"
       # This links the GCP Secret to the Env Var name NestJS expects
       - "--set-secrets"
-      - "FRONTEND_URL=FRONTEND_URL:latest,PORT=PORT:latest"
+      - "FRONTEND_URL=FRONTEND_URL:latest"
 
 options:
   logging: CLOUD_LOGGING_ONLY

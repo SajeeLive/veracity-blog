@@ -33,5 +33,8 @@ steps:
       - "--set-secrets"
       - "FRONTEND_URL=FRONTEND_URL:latest,PORT=PORT:latest"
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 images:
   - "gcr.io/$PROJECT_ID/veracity-backend"

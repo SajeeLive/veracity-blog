@@ -36,5 +36,4 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-# Run with tsconfig-paths to handle those relative aliases in dist
-CMD ["node", "-r", "tsconfig-paths/register", "dist/main.js"]
+CMD ["node", "dist/main.js"]

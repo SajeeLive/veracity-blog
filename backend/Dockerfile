@@ -1,39 +1,33 @@
 # Stage 1: Build
-FROM node:25-alpine AS builder
-
+FROM node:22-slim AS builder
 WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy workspace files
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace configuration and locks
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY backend/package.json ./backend/
 
-# Install dependencies
-RUN pnpm install --filter backend
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
 
-# Copy backend source
-COPY backend ./backend
-
-# Build the app
-WORKDIR /app/backend
-RUN pnpm run build
+# Copy source and build
+COPY . .
+RUN pnpm --filter backend build
 
 # Stage 2: Production
-FROM node:25-alpine
-
+FROM node:22-slim
 WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy built files and production dependencies
-COPY --from=builder /app/backend/dist ./dist
-COPY --from=builder /app/backend/node_modules ./node_modules
-COPY --from=builder /app/backend/package.json ./package.json
+# Copy only production dependencies and the built dist folder
+COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/package.json ./
+COPY --from=builder /app/backend/package.json ./backend/
+COPY --from=builder /app/backend/dist ./backend/dist
 
-# Environment variables
-ENV NODE_ENV=production
-ENV PORT=8080
+# Install ONLY production dependencies
+RUN pnpm install --filter backend --prod --frozen-lockfile
 
 EXPOSE 8080
-
+WORKDIR /app/backend
+# Use the direct path to avoid tsconfig-paths issues
 CMD ["node", "dist/main.js"]

@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PORT');
+  const port = configService.get<number>('PORT') || 8080;
   const frontendUrl = configService.get<string>('FRONTEND_URL');
 
   if (!port) {

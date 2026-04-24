@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TrpcModule } from './trpc/trpc.module';
 import {BlogModule}  from './blog/blog.module';
 import { envSchema } from './config/env.validation';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { envSchema } from './config/env.validation';
     }),
     TrpcModule,
     BlogModule,
+    PrismaModule,
     ],
 })
 export class AppModule {}

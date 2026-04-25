@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+@theme {
+  /* Stationery & Ink Palette */
+  --color-background: #fefbd0;
+  --color-foreground: #1d1d03;
+
+  --color-card: #f9f6ca;
+  --color-card-foreground: #1d1d03;
+
+  --color-popover: #fefbd0;
+  --color-popover-foreground: #1d1d03;
+
+  --color-primary: #202f38;
+  --color-primary-foreground: #ffffff;
+
+  --color-primary-container: #36454f;
+  --color-on-primary-container: #a2b2be;
+
+  --color-secondary: #60603e;
+  --color-secondary-foreground: #ffffff;
+
+  --color-muted: #e7e4ba;
+  --color-muted-foreground: #43474b;
+
+  --color-accent: #edeac0;
+  --color-accent-foreground: #1d1d03;
+
+  --color-destructive: #ba1a1a;
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: #73777b;
+  --color-input: #73777b;
+  --color-ring: #202f38;
+
+  /* Typography */
+  --font-serif: "Noto Serif", serif;
+  --font-mono: "Newsreader", monospace;
+  --font-typewriter: "Special Elite", "Courier Prime", monospace;
+
+  /* Spacing */
+  --spacing-unit: 4px;
+
+  /* Border Radius */
+  --radius-lg: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border, currentColor);
+  }
+
+  body {
+    @apply bg-background text-foreground font-mono;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: max(884px, 100dvh);
+    background-image: radial-gradient(#36454f11 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+    text-shadow: 0.5px 0.5px 0.5px rgba(29, 29, 3, 0.1);
+  }
+
+  h1 { @apply text-5xl font-normal leading-[1.2] -tracking-[0.02em]; }
+  h2 { @apply text-3xl font-normal leading-[1.2]; }
+}
+
+@layer components {
+  .sketchy-border {
+    border: 2px solid var(--color-primary);
+    border-radius: 2px 5px 2px 7px / 5px 2px 7px 2px;
+    position: relative;
+  }
+
+  .hatch-shadow {
+    background-image: repeating-linear-gradient(45deg, #36454f22, #36454f22 1px, transparent 1px, transparent 5px);
+  }
+
+  .torn-edge {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 98%, 95% 100%, 90% 97%, 85% 100%, 80% 98%, 75% 100%, 70% 97%, 65% 100%, 60% 98%, 55% 100%, 50% 97%, 45% 100%, 40% 98%, 35% 100%, 30% 97%, 25% 100%, 20% 98%, 15% 100%, 10% 97%, 5% 100%, 0% 98%);
+  }
+
+  .stamped-ink {
+    @apply bg-primary text-primary-foreground;
+    mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="noise" /><feDisplacementMap in="SourceGraphic" in2="noise" scale="2" /></filter><rect x="0" y="0" width="100" height="100" filter="url(%23noise)" /></svg>');
+    position: relative;
+    transition: transform 0.1s ease-in-out;
+  }
+
+  .stamped-ink:hover {
+    transform: translate(1px, 1px);
+  }
+}
+
+

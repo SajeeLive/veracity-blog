@@ -1,5 +1,6 @@
 steps:
-  # 1. Build the Docker image
+  # --- Backend ---
+  # 1. Build the Backend Docker image
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -11,7 +12,7 @@ steps:
         ".",
       ]
 
-  # 2. Push the image to Container Registry
+  # 2. Push the Backend image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -19,7 +20,7 @@ steps:
         "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-backend",
       ]
 
-  # 3. Deploy to Cloud Run
+  # 3. Deploy Backend to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
@@ -39,8 +40,45 @@ steps:
       - "--add-cloudsql-instances"
       - "$PROJECT_ID:asia-southeast1:veracity-db-instance"
 
+  # --- Frontend ---
+  # 4. Build the Frontend Docker image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-frontend",
+        "-f",
+        "frontend/Dockerfile",
+        ".",
+      ]
+
+  # 5. Push the Frontend image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-frontend",
+      ]
+
+  # 6. Deploy Frontend to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "veracity-frontend"
+      - "--image"
+      - "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-frontend"
+      - "--region"
+      - "asia-southeast1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+
 options:
   logging: CLOUD_LOGGING_ONLY
 
 images:
   - "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-backend"
+  - "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-frontend"

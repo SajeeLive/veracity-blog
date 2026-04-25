@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { TransformInterceptor } from './common/transform.interceptor';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { AppRouterHost } from './trpc/app.router';
 import { ConfigService } from '@nestjs/config';
@@ -28,6 +30,9 @@ async function bootstrap() {
   
   // Merge routers into a single root
  const { appRouter } = app.get(AppRouterHost);
+
+ app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.use(
     '/trpc',

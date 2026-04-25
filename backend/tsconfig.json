@@ -4,7 +4,7 @@
     "moduleResolution": "Node16",
     "target": "ES2022",
     "outDir": "./dist",
-    "rootDir": "./src",  /* Crucial: prevents dist/src/main.js */
+    "rootDir": "./src" /* Crucial: prevents dist/src/main.js */,
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
@@ -13,7 +13,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

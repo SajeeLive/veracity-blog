@@ -1,6 +1,6 @@
 # Stage 1: Build
 FROM node:22-slim AS builder
-# Install openssl for Prisma engines
+# Install openssl for Prisma engines 
 RUN apt-get update -y && apt-get install -y openssl
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -9,16 +9,20 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY backend/package.json ./backend/
 
-# Install all dependencies
-RUN pnpm install --frozen-lockfile
+# 1. Install dependencies with --ignore-scripts
+# This prevents the "postinstall: prisma generate" from running 
+# before the schema and config files are copied 
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
-# Copy the Prisma schema and generate the client
-# This must happen before building the NestJS source
-COPY backend/prisma ./backend/prisma/
-RUN pnpm --filter backend exec prisma generate
-
-# Copy source and build
+# 2. Copy the rest of the source code first
+# This ensures src/config/prisma.config.ts and backend/prisma/schema.prisma exist 
 COPY . .
+
+# 3. Explicitly run Prisma Generate using your custom config
+# We run this after the copy so the paths are resolved correctly 
+RUN pnpm --filter backend exec prisma generate --config src/config/prisma.config.ts
+
+# 4. Build the NestJS source 
 RUN pnpm --filter backend build
 
 # Stage 2: Production
@@ -28,18 +32,19 @@ RUN apt-get update -y && apt-get install -y openssl
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy only production dependencies and the built dist folder
+# Copy production artifacts
 COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/package.json ./
 COPY --from=builder /app/backend/package.json ./backend/
 COPY --from=builder /app/backend/dist ./backend/dist
-# You MUST copy the generated client from the builder stage
+
+# IMPORTANT: Copy the generated client from the custom output path 
 COPY --from=builder /app/backend/src/generated ./backend/src/generated
 COPY --from=builder /app/backend/prisma ./backend/prisma/
 
-# Install ONLY production dependencies
-RUN pnpm install --filter backend --prod --frozen-lockfile
+# Install ONLY production dependencies 
+# We use --ignore-scripts here as well to avoid redundant generation attempts
+RUN pnpm install --filter backend --prod --frozen-lockfile --ignore-scripts
 
 EXPOSE 8080
 WORKDIR /app/backend
-# Use the direct path to avoid tsconfig-paths issues
 CMD ["node", "dist/main.js"]

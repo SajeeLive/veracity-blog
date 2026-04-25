@@ -41,19 +41,21 @@ steps:
       - "$PROJECT_ID:asia-southeast1:veracity-db-instance"
 
   # --- Frontend ---
+  # 3.5 Retrieve VITE_BACKEND_URL from Secret Manager
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        gcloud secrets versions access latest --secret="VITE_BACKEND_URL" > .frontend_url
+
   # 4. Build the Frontend Docker image
   - name: "gcr.io/cloud-builders/docker"
+    entrypoint: bash
     args:
-      [
-        "build",
-        "-t",
-        "asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-frontend",
-        "-f",
-        "frontend/Dockerfile",
-        "--build-arg",
-        "VITE_BACKEND_URL=$_VITE_BACKEND_URL",
-        ".",
-      ]
+      - "-c"
+      - |
+        docker build -t asia-southeast1-docker.pkg.dev/$PROJECT_ID/veracity-repo/veracity-frontend -f frontend/Dockerfile --build-arg VITE_BACKEND_URL=$(cat .frontend_url) .
 
   # 5. Push the Frontend image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"

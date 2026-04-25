@@ -15,6 +15,9 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Build the frontend 
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 # This runs "tsc -b && vite build" as defined in package.json
 RUN pnpm --filter frontend build
 

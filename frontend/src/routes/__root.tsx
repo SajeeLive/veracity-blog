@@ -1,8 +1,16 @@
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { useAppStore } from "@/store/appStore";
 
 export const Route = createRootRoute({
-  component: () => (
+  component: RootComponent,
+});
+
+function RootComponent() {
+  const searchQuery = useAppStore((state) => state.searchQuery);
+  const setSearchQuery = useAppStore((state) => state.setSearchQuery);
+
+  return (
     <div className="min-h-screen bg-background font-mono text-foreground selection:bg-primary-container selection:text-white">
       {/* TopAppBar */}
       <header className="bg-[#F5F5DC] text-[#36454F] font-serif font-bold tracking-tighter w-full top-0 border-b-2 border-[#36454F] border-dashed shadow-[4px_4px_0px_0px_rgba(54,69,79,1)] z-50 sticky">
@@ -22,6 +30,8 @@ export const Route = createRootRoute({
                 className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
                 placeholder="Search the archives..." 
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
@@ -42,6 +52,8 @@ export const Route = createRootRoute({
               className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
               placeholder="Search the archives..." 
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -49,6 +61,6 @@ export const Route = createRootRoute({
     <TanStackRouterDevtools />
 
     </div>
-  ),
-});
+  );
+}
 

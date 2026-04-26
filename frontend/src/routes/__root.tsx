@@ -1,6 +1,9 @@
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Header } from "@/components/Header";
+import { trpc } from "@/lib/trpc/client";
+import { useAppStore } from "@/store/appStore";
+import { useEffect } from "react";
 
 interface MyRouterContext {
   isAuthenticated: boolean;
@@ -11,7 +14,19 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootComponent() {
-  const { isAuthenticated } = Route.useRouteContext();
+  const { isAuthenticated, setUser } = useAppStore();
+  
+  // Hydrate auth state from session cookie
+  const { data: user, isSuccess } = trpc.auth.getMe.useQuery(undefined, {
+    retry: false,
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      setUser(user);
+    }
+  }, [isSuccess, user, setUser]);
 
   return (
     <div className="min-h-screen bg-background font-mono text-foreground selection:bg-primary-container selection:text-white">

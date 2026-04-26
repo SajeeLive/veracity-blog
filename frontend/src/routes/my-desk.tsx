@@ -1,0 +1,40 @@
+import { createFileRoute, Outlet, redirect, Link } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/my-desk')({
+  beforeLoad: ({ context, location }) => {
+    if (!context.isAuthenticated) {
+      throw redirect({
+        to: '/auth/sign-in',
+        search: {
+          redirect: location.href,
+        },
+      })
+    }
+  },
+  component: MyDeskLayout,
+})
+
+function MyDeskLayout() {
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-4xl font-bold tracking-tight">Author's Desk</h1>
+        <nav className="flex gap-4 border-b border-border pb-4">
+          <Link
+            to="/my-desk"
+            className="text-sm font-medium hover:text-primary transition-colors [&.active]:text-primary [&.active]:border-b-2 [&.active]:border-primary"
+          >
+            Overview
+          </Link>
+          <Link
+            to="/my-desk/blog/write"
+            className="text-sm font-medium hover:text-primary transition-colors [&.active]:text-primary [&.active]:border-b-2 [&.active]:border-primary"
+          >
+            Write New
+          </Link>
+        </nav>
+      </div>
+      <Outlet />
+    </div>
+  )
+}

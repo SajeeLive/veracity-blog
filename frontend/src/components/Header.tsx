@@ -1,6 +1,17 @@
 import { ReactNode, createContext, useContext, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
 
 // --- Context ---
 interface HeaderContextType {
@@ -52,6 +63,7 @@ function HeaderTitle({ text = "The Ledger" }: HeaderTitleProps) {
 }
 
 function HeaderSearch() {
+  const location = useLocation();
   const searchQuery = useAppStore((state) => state.searchQuery);
   const setSearchQuery = useAppStore((state) => state.setSearchQuery);
   const setDebouncedSearchQuery = useAppStore((state) => state.setDebouncedSearchQuery);
@@ -70,6 +82,9 @@ function HeaderSearch() {
 
     return () => clearTimeout(handler);
   }, [searchQuery, setDebouncedSearchQuery, setIsSearching]);
+
+  const isSearchHidden = location.pathname.startsWith("/blog/") || location.pathname.startsWith("/auth");
+  if (isSearchHidden) return null;
 
   return (
     <>
@@ -122,8 +137,26 @@ function HeaderAuthButton() {
   if (isAuthenticated) return null;
 
   return (
-    <Link to="/" className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap">
-      Sign In
+    <Link 
+      to="/auth/sign-in" 
+      className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap"
+    >
+      Log In
+    </Link>
+  );
+}
+
+function HeaderMyDeskButton() {
+  const { isAuthenticated } = useHeaderContext();
+  
+  if (!isAuthenticated) return null;
+
+  return (
+    <Link 
+      to="/my-desk" 
+      className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap"
+    >
+      My Desk
     </Link>
   );
 }
@@ -141,10 +174,73 @@ function HeaderUnauthButton() {
   );
 }
 
+function HeaderMobileMenu() {
+  const { isAuthenticated } = useHeaderContext();
+  const logout = useAppStore((state) => state.logout);
+
+  return (
+    <div className="md:hidden">
+      <Drawer>
+        <DrawerTrigger asChild>
+          <button className="flex items-center justify-center p-2">
+            <span className="material-symbols-outlined text-3xl" data-icon="menu">menu</span>
+          </button>
+        </DrawerTrigger>
+        <DrawerContent className="bg-[#F5F5DC] border-[#36454F] border-t-4">
+          <DrawerHeader>
+            <DrawerTitle className="font-serif italic uppercase tracking-widest text-[#36454F]">
+              The Ledger
+            </DrawerTitle>
+            <DrawerDescription className="font-typewriter text-[#36454F]/70">
+              Navigation Menu
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="flex flex-col gap-4 p-6">
+            {!isAuthenticated ? (
+              <Link 
+                to="/auth/sign-in" 
+                className="stamped-ink px-4 py-4 font-typewriter text-lg font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline"
+              >
+                Log In
+              </Link>
+            ) : (
+              <>
+                <Link 
+                  to="/my-desk" 
+                  className="stamped-ink px-4 py-4 font-typewriter text-lg font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline"
+                >
+                  My Desk
+                </Link>
+                <button 
+                  onClick={() => {
+                    logout();
+                  }} 
+                  className="stamped-ink px-4 py-4 font-typewriter text-lg font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline" className="font-typewriter uppercase tracking-widest border-2 border-[#36454F]">
+                Close
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
+}
+
 // --- Compound Assignment ---
 export const Header = Object.assign(HeaderRoot, {
   Title: HeaderTitle,
   Search: HeaderSearch,
   AuthButton: HeaderAuthButton,
+  MyDeskButton: HeaderMyDeskButton,
   UnauthButton: HeaderUnauthButton,
+  MobileMenu: HeaderMobileMenu,
 });

@@ -1,13 +1,15 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { BlogModule } from '../blog/blog.module';
+import { WebauthnModule } from '../webauthn/webauthn.module';
 import { TrpcService } from './trpc.service';
 import { AppRouterHost } from './app.router';
 
 @Module({
-  // Use forwardRef because TrpcModule imports BlogModule 
-  // and BlogModule will now import TrpcModule
-  imports: [forwardRef(() => BlogModule)], 
+  imports: [
+    forwardRef(() => BlogModule),
+    forwardRef(() => WebauthnModule),
+  ], 
   providers: [TrpcService, AppRouterHost],
-  exports: [TrpcService, AppRouterHost], // CRITICAL: Export TrpcService
+  exports: [TrpcService, AppRouterHost],
 })
 export class TrpcModule {}

@@ -7,6 +7,7 @@ import webauthnConfig from './config/webauthn.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { WebauthnModule } from './webauthn/webauthn.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AppService } from './app.service';
     TrpcModule,
     BlogModule,
     PrismaModule,
+    WebauthnModule,
     ],
   controllers: [AppController],
   providers: [AppService],

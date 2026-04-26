@@ -1,18 +1,24 @@
 # Stage 1: Build
 FROM node:22-slim AS builder
+# Install openssl for Prisma engines 
+RUN apt-get update -y && apt-get install -y openssl
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy workspace configuration and locks
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY frontend/package.json ./frontend/
+COPY backend/package.json ./backend/
 
 # Install dependencies
-# We don't need --ignore-scripts for the frontend as there's no Prisma
-RUN pnpm install --frozen-lockfile
+# We use --ignore-scripts to avoid running prisma generate before we copy the schema
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy the rest of the source code
 COPY . .
+
+# Generate Prisma client (needed for backend types used in frontend)
+RUN pnpm --filter backend exec prisma generate --config src/config/prisma.config.ts
 
 # Build the frontend 
 ARG VITE_BACKEND_URL

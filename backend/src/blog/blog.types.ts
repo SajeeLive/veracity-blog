@@ -4,7 +4,7 @@ export const getAllBlogsSchema = z
   .object({
     cursor: z
       .object({
-        id: z.string().uuid(), // Enforcing UUID format for safety
+        id: z.uuid(), // Enforcing UUID format for safety
       })
       .optional(),
     take: z.number().min(1).max(100).default(10), // Added a default for better DX

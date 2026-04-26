@@ -25,6 +25,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "../backend/src/trpc/**/*.ts", "../backend/src/blog/**/*.ts", "../backend/src/prisma/**/*.ts"],
+  "include": ["src"],
   "exclude": ["../backend/src/**/*.spec.ts"]
 }

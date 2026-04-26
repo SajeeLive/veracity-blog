@@ -207,13 +207,11 @@ function HeaderMobileMenu() {
 
   // Auto-close on navigation
   useEffect(() => {
-    if (open) {
-      const timer = setTimeout(() => {
-        setOpen(false);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, open]);
+    const timer = setTimeout(() => {
+      setOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   return (
     <div className="md:hidden">

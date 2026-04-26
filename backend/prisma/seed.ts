@@ -17,21 +17,13 @@ async function main() {
   console.log('--- Starting Seed ---');
 
   const authors = [];
-  const firstNames = ['James', 'Mary', 'Robert', 'Patricia', 'John', 'Jennifer', 'Michael', 'Linda', 'David', 'Elizabeth'];
-  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
   const handles = ['CodeArtisan', 'ByteBard', 'LogicLuminary', 'PixelProphet', 'SyntaxSorcerer', 'DataDruid', 'CyberSage', 'NodeNinja', 'QueryQueen', 'ThePragma'];
 
   for (let i = 0; i < 10; i++) {
-    const firstName = firstNames[i];
-    const lastName = lastNames[i];
-    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@veracity.com`;
     const handle = handles[i];
 
     const user = await prisma.user.create({
       data: {
-        email,
-        firstName,
-        lastName,
         author: {
           create: {
             handle,
@@ -44,7 +36,7 @@ async function main() {
     if (user.author) {
       authors.push(user.author);
     }
-    console.log(`Created Author: ${handle} (${email})`);
+    console.log(`Created Author: ${handle}`);
   }
 
   const blogTopics = [

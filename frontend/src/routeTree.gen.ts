@@ -9,12 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MyDeskRouteImport } from './routes/my-desk'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MyDeskIndexRouteImport } from './routes/my-desk/index'
 import { Route as BlogBlogIdRouteImport } from './routes/blog/$blogId'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as MyDeskBlogWriteRouteImport } from './routes/my-desk/blog/write'
+import { Route as MyDeskBlogBlogIdRouteImport } from './routes/my-desk/blog/$blogId'
 
+const MyDeskRoute = MyDeskRouteImport.update({
+  id: '/my-desk',
+  path: '/my-desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -24,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MyDeskIndexRoute = MyDeskIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MyDeskRoute,
 } as any)
 const BlogBlogIdRoute = BlogBlogIdRouteImport.update({
   id: '/blog/$blogId',
@@ -40,13 +54,27 @@ const AuthSignInRoute = AuthSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => AuthRoute,
 } as any)
+const MyDeskBlogWriteRoute = MyDeskBlogWriteRouteImport.update({
+  id: '/blog/write',
+  path: '/blog/write',
+  getParentRoute: () => MyDeskRoute,
+} as any)
+const MyDeskBlogBlogIdRoute = MyDeskBlogBlogIdRouteImport.update({
+  id: '/blog/$blogId',
+  path: '/blog/$blogId',
+  getParentRoute: () => MyDeskRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/my-desk': typeof MyDeskRouteWithChildren
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/blog/$blogId': typeof BlogBlogIdRoute
+  '/my-desk/': typeof MyDeskIndexRoute
+  '/my-desk/blog/$blogId': typeof MyDeskBlogBlogIdRoute
+  '/my-desk/blog/write': typeof MyDeskBlogWriteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,37 +82,73 @@ export interface FileRoutesByTo {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/blog/$blogId': typeof BlogBlogIdRoute
+  '/my-desk': typeof MyDeskIndexRoute
+  '/my-desk/blog/$blogId': typeof MyDeskBlogBlogIdRoute
+  '/my-desk/blog/write': typeof MyDeskBlogWriteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/my-desk': typeof MyDeskRouteWithChildren
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/blog/$blogId': typeof BlogBlogIdRoute
+  '/my-desk/': typeof MyDeskIndexRoute
+  '/my-desk/blog/$blogId': typeof MyDeskBlogBlogIdRoute
+  '/my-desk/blog/write': typeof MyDeskBlogWriteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/auth/sign-in' | '/auth/sign-up' | '/blog/$blogId'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/my-desk'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/blog/$blogId'
+    | '/my-desk/'
+    | '/my-desk/blog/$blogId'
+    | '/my-desk/blog/write'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/auth/sign-in' | '/auth/sign-up' | '/blog/$blogId'
-  id:
-    | '__root__'
+  to:
     | '/'
     | '/auth'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/blog/$blogId'
+    | '/my-desk'
+    | '/my-desk/blog/$blogId'
+    | '/my-desk/blog/write'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/my-desk'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/blog/$blogId'
+    | '/my-desk/'
+    | '/my-desk/blog/$blogId'
+    | '/my-desk/blog/write'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  MyDeskRoute: typeof MyDeskRouteWithChildren
   BlogBlogIdRoute: typeof BlogBlogIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/my-desk': {
+      id: '/my-desk'
+      path: '/my-desk'
+      fullPath: '/my-desk'
+      preLoaderRoute: typeof MyDeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -98,6 +162,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/my-desk/': {
+      id: '/my-desk/'
+      path: '/'
+      fullPath: '/my-desk/'
+      preLoaderRoute: typeof MyDeskIndexRouteImport
+      parentRoute: typeof MyDeskRoute
     }
     '/blog/$blogId': {
       id: '/blog/$blogId'
@@ -120,6 +191,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/my-desk/blog/write': {
+      id: '/my-desk/blog/write'
+      path: '/blog/write'
+      fullPath: '/my-desk/blog/write'
+      preLoaderRoute: typeof MyDeskBlogWriteRouteImport
+      parentRoute: typeof MyDeskRoute
+    }
+    '/my-desk/blog/$blogId': {
+      id: '/my-desk/blog/$blogId'
+      path: '/blog/$blogId'
+      fullPath: '/my-desk/blog/$blogId'
+      preLoaderRoute: typeof MyDeskBlogBlogIdRouteImport
+      parentRoute: typeof MyDeskRoute
+    }
   }
 }
 
@@ -135,9 +220,25 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface MyDeskRouteChildren {
+  MyDeskIndexRoute: typeof MyDeskIndexRoute
+  MyDeskBlogBlogIdRoute: typeof MyDeskBlogBlogIdRoute
+  MyDeskBlogWriteRoute: typeof MyDeskBlogWriteRoute
+}
+
+const MyDeskRouteChildren: MyDeskRouteChildren = {
+  MyDeskIndexRoute: MyDeskIndexRoute,
+  MyDeskBlogBlogIdRoute: MyDeskBlogBlogIdRoute,
+  MyDeskBlogWriteRoute: MyDeskBlogWriteRoute,
+}
+
+const MyDeskRouteWithChildren =
+  MyDeskRoute._addFileChildren(MyDeskRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  MyDeskRoute: MyDeskRouteWithChildren,
   BlogBlogIdRoute: BlogBlogIdRoute,
 }
 export const routeTree = rootRouteImport

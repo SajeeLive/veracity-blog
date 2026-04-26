@@ -5,7 +5,7 @@ interface BlogDetailsCardContextProps {
     title: string;
     content: string;
     createdAt: Date | string;
-    author: {
+    user: {
       handle: string;
     };
   };
@@ -55,7 +55,7 @@ export function BlogDetailsCardMeta({ children }: { children: React.ReactNode })
 
 export function BlogDetailsCardAuthor() {
   const { post } = useBlogDetailsCardContext();
-  return <span className="font-bold text-[#43474b]">By {post.author.handle}</span>;
+  return <span className="font-bold text-[#43474b]">By {post.user.handle}</span>;
 }
 
 export function BlogDetailsCardCreatedAt() {

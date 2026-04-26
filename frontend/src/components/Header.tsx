@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
 

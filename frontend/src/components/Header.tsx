@@ -38,6 +38,10 @@ interface HeaderTitleProps {
   text?: string;
 }
 
+interface ButtonProps {
+  className?: string;
+}
+
 // --- Components ---
 
 function HeaderRoot({ children, isAuthenticated }: HeaderProps) {
@@ -131,7 +135,7 @@ function HeaderSearch() {
   );
 }
 
-function HeaderAuthButton() {
+function HeaderLoginButton({ className }: ButtonProps) {
   const { isAuthenticated } = useHeaderContext();
   
   if (isAuthenticated) return null;
@@ -139,14 +143,14 @@ function HeaderAuthButton() {
   return (
     <Link 
       to="/auth/sign-in" 
-      className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap"
+      className={`stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap ${className || ""}`}
     >
       Log In
     </Link>
   );
 }
 
-function HeaderMyDeskButton() {
+function HeaderMyDeskButton({ className }: ButtonProps) {
   const { isAuthenticated } = useHeaderContext();
   
   if (!isAuthenticated) return null;
@@ -154,23 +158,36 @@ function HeaderMyDeskButton() {
   return (
     <Link 
       to="/my-desk" 
-      className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap"
+      className={`stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap ${className || ""}`}
     >
       My Desk
     </Link>
   );
 }
 
-function HeaderUnauthButton() {
+function HeaderLogoutButton({ className }: ButtonProps) {
   const { isAuthenticated } = useHeaderContext();
   const logout = useAppStore((state) => state.logout);
 
   if (!isAuthenticated) return null;
 
   return (
-    <button onClick={logout} className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none whitespace-nowrap">
+    <button 
+      onClick={logout} 
+      className={`stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none whitespace-nowrap ${className || ""}`}
+    >
       Logout
     </button>
+  );
+}
+
+function HeaderCloseButton() {
+  return (
+    <DrawerClose asChild>
+      <Button variant="outline" className="font-typewriter uppercase tracking-widest border-2 border-[#36454F]">
+        Close
+      </Button>
+    </DrawerClose>
   );
 }
 
@@ -239,8 +256,9 @@ function HeaderMobileMenu() {
 export const Header = Object.assign(HeaderRoot, {
   Title: HeaderTitle,
   Search: HeaderSearch,
-  AuthButton: HeaderAuthButton,
+  LoginButton: HeaderLoginButton,
   MyDeskButton: HeaderMyDeskButton,
-  UnauthButton: HeaderUnauthButton,
+  LogoutButton: HeaderLogoutButton,
+  CloseButton: HeaderCloseButton,
   MobileMenu: HeaderMobileMenu,
 });

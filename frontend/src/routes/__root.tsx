@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useAppStore } from "@/store/appStore";
 import { Header } from "@/components/Header";
@@ -9,13 +9,14 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const isAuthenticated = useAppStore((state) => state.isAuthenticated);
+  const location = useLocation();
+  const showSearch = !location.pathname.startsWith("/blog/");
 
   return (
     <div className="min-h-screen bg-background font-mono text-foreground selection:bg-primary-container selection:text-white">
-      
       <Header isAuthenticated={isAuthenticated}>
         <Header.Title />
-        <Header.Search />
+        {showSearch && <Header.Search />}
         <Header.AuthButton />
         <Header.UnauthButton />
       </Header>
@@ -28,4 +29,3 @@ function RootComponent() {
     </div>
   );
 }
-

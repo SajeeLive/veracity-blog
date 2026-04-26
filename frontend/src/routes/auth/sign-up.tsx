@@ -1,22 +1,20 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { registerPasskey } from '../../lib/webauthn'
-import { useState } from 'react'
+import { useTransition } from 'react'
 
 export const Route = createFileRoute('/auth/sign-up')({
   component: SignUpComponent,
 })
 
 function SignUpComponent() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm({
     defaultValues: {
       handle: '',
     },
     onSubmit: async ({ value }) => {
-      setIsLoading(true);
-
       try {
         const handle = value.handle;
 
@@ -30,8 +28,6 @@ function SignUpComponent() {
         } else {
           throw new Error(err.message || 'Registration failed');
         }
-      } finally {
-        setIsLoading(false);
       }
     },
   });
@@ -58,7 +54,9 @@ function SignUpComponent() {
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              form.handleSubmit();
+              startTransition(async () => {
+                await form.handleSubmit();
+              });
             }} 
             className="space-y-6"
             noValidate
@@ -85,7 +83,7 @@ function SignUpComponent() {
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      disabled={isLoading}
+                      disabled={isPending}
                       autoFocus
                       autoComplete="username webauthn"
                       aria-invalid={hasError}
@@ -123,10 +121,10 @@ function SignUpComponent() {
               children={([canSubmit, isSubmitting]) => (
                 <button 
                   type="submit" 
-                  disabled={!canSubmit || isSubmitting || isLoading}
+                  disabled={!canSubmit || isSubmitting || isPending}
                   className="w-full h-11 bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium rounded-[8px] text-[0.9rem] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
                 >
-                  {isSubmitting || isLoading ? 'Creating Passkey...' : 'Continue'}
+                  {isSubmitting || isPending ? 'Creating Passkey...' : 'Continue'}
                 </button>
               )}
             />

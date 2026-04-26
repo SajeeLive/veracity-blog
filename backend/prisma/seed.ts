@@ -7,118 +7,74 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const SEED_DATA = [
-  {
-    email: 'dilsh@veracity.com',
-    firstName: 'Dilsh',
-    lastName: 'Dev',
-    handle: 'dilsh_codes',
-    blogs: [
-      {
-        title: 'Building Veracity with NestJS and Prisma',
-        content:
-          'This is the first post on our new blogging platform! We are using a robust stack to ensure type safety.',
-      },
-      {
-        title: 'Why I love PWAs',
-        content:
-          'PWAs are the future of mobile web development. They combine the best of web and native apps.',
-      },
-      {
-        title: 'Mastering TanStack Router',
-        content:
-          'Type-safe routing in React has never been easier. Let’s dive into TanStack Router configurations.',
-      },
-    ],
-  },
-  {
-    email: 'sarah.engineer@veracity.com',
-    firstName: 'Sarah',
-    lastName: 'Chen',
-    handle: 'schen_dev',
-    blogs: [
-      {
-        title: 'Advanced Concurrent Systems',
-        content:
-          'Exploring mutual exclusion and semaphores in high-performance distributed systems.',
-      },
-      {
-        title: 'PostgreSQL Indexing Strategies',
-        content:
-          'How to optimize your Prisma queries by understanding B-Tree and GIST indexes.',
-      },
-    ],
-  },
-  {
-    email: 'marcus.ux@veracity.com',
-    firstName: 'Marcus',
-    lastName: 'Rivera',
-    handle: 'marcus_design',
-    blogs: [
-      {
-        title: 'Accessibility in PWA Design',
-        content:
-          'Designing for the web should be inclusive. Here are 5 tips for better ARIA labels.',
-      },
-      {
-        title: 'The Psychology of Dark Mode',
-        content:
-          'Why users prefer dark interfaces and how to implement it using Tailwind CSS.',
-      },
-    ],
-  },
-  {
-    email: 'alex.web3@veracity.com',
-    firstName: 'Alex',
-    lastName: 'Kim',
-    handle: 'cryptocoder',
-    blogs: [
-      {
-        title: 'Web3 Auth for Modern Apps',
-        content:
-          'Moving beyond passwords: How to integrate wallet-based authentication in NestJS.',
-      },
-      {
-        title: 'Blockchain Testnets 101',
-        content:
-          'A guide to setting up your first integration with the Tempo blockchain testnet.',
-      },
-    ],
-  },
-];
-
 async function main() {
+  console.log('--- Cleaning Database ---');
+  // Order matters for foreign keys
+  await prisma.blog.deleteMany();
+  await prisma.author.deleteMany();
+  await prisma.user.deleteMany();
+
   console.log('--- Starting Seed ---');
 
-  for (const item of SEED_DATA) {
-    const user = await prisma.user.upsert({
-      where: { email: item.email },
-      update: {}, // Don't change anything if user exists
-      create: {
-        email: item.email,
-        firstName: item.firstName,
-        lastName: item.lastName,
+  const authors = [];
+  const firstNames = ['James', 'Mary', 'Robert', 'Patricia', 'John', 'Jennifer', 'Michael', 'Linda', 'David', 'Elizabeth'];
+  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+  const handles = ['CodeArtisan', 'ByteBard', 'LogicLuminary', 'PixelProphet', 'SyntaxSorcerer', 'DataDruid', 'CyberSage', 'NodeNinja', 'QueryQueen', 'ThePragma'];
+
+  for (let i = 0; i < 10; i++) {
+    const firstName = firstNames[i];
+    const lastName = lastNames[i];
+    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@veracity.com`;
+    const handle = handles[i];
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        firstName,
+        lastName,
         author: {
           create: {
-            handle: item.handle,
+            handle,
           },
         },
       },
       include: { author: true },
     });
 
-    console.log(`User/Author: ${user.email} (${user.author?.handle})`);
-
     if (user.author) {
-      for (const blog of item.blogs) {
-        await prisma.blog.create({
-          data: {
-            title: blog.title,
-            content: blog.content,
-            authorId: user.author.id,
-          },
-        });
-      }
+      authors.push(user.author);
+    }
+    console.log(`Created Author: ${handle} (${email})`);
+  }
+
+  const blogTopics = [
+    'NestJS', 'Prisma', 'TypeScript', 'React', 'Next.js', 'PostgreSQL', 
+    'Docker', 'Kubernetes', 'AWS', 'Serverless', 'Microservices', 'GraphQL',
+    'TDD', 'Clean Code', 'Performance', 'Security', 'Frontend', 'Backend'
+  ];
+  const adjectives = ['Amazing', 'Advanced', 'Modern', 'Simple', 'Robust', 'Scalable', 'Fast', 'Secure'];
+
+  console.log('--- Creating 100 Blogs ---');
+  for (let i = 0; i < 100; i++) {
+    const author = authors[i % authors.length];
+    const topic = blogTopics[Math.floor(Math.random() * blogTopics.length)];
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const title = `${adj} ${topic} Guide Part ${i + 1}`;
+    const content = `Content for blog post #${i + 1}. This post explores ${topic} in a ${adj.toLowerCase()} way. 
+    Lately, many developers have been looking into ${topic} for building ${adj.toLowerCase()} systems. 
+    In this guide, we will dive deep into the best practices and common pitfalls when working with ${topic}.
+    Timestamp: ${new Date().toISOString()}. Unique ID: ${Math.random().toString(36).substring(7)}.`;
+
+    await prisma.blog.create({
+      data: {
+        title,
+        content,
+        authorId: author.id,
+      },
+    });
+
+    if ((i + 1) % 10 === 0) {
+      console.log(`Created ${i + 1} blogs...`);
     }
   }
 

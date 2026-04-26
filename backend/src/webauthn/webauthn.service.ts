@@ -142,13 +142,13 @@ export class WebauthnService {
         throw error;
       }
 
-      return { verified: true };
+      return { id: challenge.userId!, handle };
     }
 
     // Cleanup challenge if not verified
     await this.prisma.authChallenge
       .delete({ where: { id: challenge.id } })
       .catch(() => {});
-    return { verified: false };
+    throw new UnauthorizedException('Verification failed');
   }
 }

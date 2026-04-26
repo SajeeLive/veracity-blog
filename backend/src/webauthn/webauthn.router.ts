@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TrpcService } from '../trpc/trpc.service';
 import { WebauthnService } from './webauthn.service';
+import { AuthService } from '../auth/auth.service';
 import {
   getRegistrationOptionsSchema,
   verifyRegistrationSchema,
@@ -13,6 +14,7 @@ export class WebauthnRouter {
   constructor(
     private readonly trpc: TrpcService,
     private readonly webauthnService: WebauthnService,
+    private readonly authService: AuthService,
   ) {
     this.router = this.trpc.router({
       getRegistrationOptions: this.trpc.procedure
@@ -24,11 +26,25 @@ export class WebauthnRouter {
         }),
       verifyRegistration: this.trpc.procedure
         .input(verifyRegistrationSchema)
-        .mutation(async ({ input }) => {
-          return await this.webauthnService.verifyRegistration(
+        .mutation(async ({ input, ctx }) => {
+          const user = await this.webauthnService.verifyRegistration(
             input.handle,
             input.response,
           );
+
+          const token = this.authService.signSession({
+            sub: user.id,
+            handle: user.handle,
+          });
+
+          ctx.res.cookie('session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+
+          return { verified: true };
         }),
     });
   }

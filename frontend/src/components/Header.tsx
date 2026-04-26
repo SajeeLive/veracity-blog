@@ -71,36 +71,46 @@ function HeaderSearch() {
     return () => clearTimeout(handler);
   }, [searchQuery, setDebouncedSearchQuery, setIsSearching]);
 
-  const SearchInput = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className="relative group w-full">
-      <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
-      <div className={`relative flex items-center w-full bg-white sketchy-border px-3 ${mobile ? 'py-2' : 'py-1'}`}>
-        {isSearching ? (
-          <span className="material-symbols-outlined text-primary-container mr-2 animate-spin text-sm" data-icon="progress_activity">progress_activity</span>
-        ) : (
-          <span className="material-symbols-outlined text-primary-container mr-2" data-icon="search">search</span>
-        )}
-        <input 
-          className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
-          placeholder="Search the archives..." 
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-    </div>
-  );
-
   return (
     <>
       {/* Desktop Search (in header) */}
       <div className="hidden md:flex relative group w-64 lg:w-96">
-        <SearchInput />
+        <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
+        <div className="relative flex items-center w-full bg-white sketchy-border px-3 py-1">
+          {isSearching ? (
+            <span className="material-symbols-outlined text-primary-container mr-2 animate-spin text-sm" data-icon="progress_activity">progress_activity</span>
+          ) : (
+            <span className="material-symbols-outlined text-primary-container mr-2" data-icon="search">search</span>
+          )}
+          <input 
+            className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
+            placeholder="Search the archives..." 
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Mobile Search (fixed bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 p-4 bg-[#F5F5DC] border-t-2 border-[#36454F]">
-        <SearchInput mobile />
+        <div className="relative group w-full">
+          <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
+          <div className="relative flex items-center w-full bg-white sketchy-border px-3 py-2">
+            {isSearching ? (
+              <span className="material-symbols-outlined text-primary-container mr-2 animate-spin text-sm" data-icon="progress_activity">progress_activity</span>
+            ) : (
+              <span className="material-symbols-outlined text-primary-container mr-2" data-icon="search">search</span>
+            )}
+            <input 
+              className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
+              placeholder="Search the archives..." 
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
       </nav>
     </>
   );

@@ -15,7 +15,9 @@ export class WebauthnRouter {
       getRegistrationOptions: this.trpc.procedure
         .input(getRegistrationOptionsSchema)
         .query(async ({ input }) => {
-          return await this.webauthnService.getRegistrationOptions(input.handle);
+          return await this.webauthnService.getRegistrationOptions(
+            input.handle,
+          );
         }),
     });
   }

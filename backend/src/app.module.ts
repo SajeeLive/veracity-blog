@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TrpcModule } from './trpc/trpc.module';
-import {BlogModule}  from './blog/blog.module';
+import { BlogModule } from './blog/blog.module';
 import { envSchema } from './config/env.validation';
 import webauthnConfig from './config/webauthn.config';
 import { PrismaModule } from './prisma/prisma.module';
@@ -22,7 +22,7 @@ import { WebauthnModule } from './webauthn/webauthn.module';
     BlogModule,
     PrismaModule,
     WebauthnModule,
-    ],
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

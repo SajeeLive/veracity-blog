@@ -5,10 +5,7 @@ import { TrpcService } from './trpc.service';
 import { AppRouterHost } from './app.router';
 
 @Module({
-  imports: [
-    forwardRef(() => BlogModule),
-    forwardRef(() => WebauthnModule),
-  ], 
+  imports: [forwardRef(() => BlogModule), forwardRef(() => WebauthnModule)],
   providers: [TrpcService, AppRouterHost],
   exports: [TrpcService, AppRouterHost],
 })

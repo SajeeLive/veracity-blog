@@ -18,11 +18,16 @@ function RootComponent() {
       <Header isAuthenticated={isAuthenticated}>
         <Header.Title />
         <Header.Search />
-        <div className="flex items-center gap-4">
+        
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-4">
           <Header.AuthButton />
           <Header.MyDeskButton />
           <Header.UnauthButton />
         </div>
+
+        {/* Mobile Navigation */}
+        <Header.MobileMenu />
       </Header>
 
       <main className="max-w-screen-xl mx-auto px-6 pt-12 pb-32 md:pb-12">

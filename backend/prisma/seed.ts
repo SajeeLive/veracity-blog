@@ -12,12 +12,11 @@ async function main() {
   console.log('--- Cleaning Database ---');
   // Order matters for foreign keys
   await prisma.blog.deleteMany();
-  await prisma.author.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('--- Starting Seed ---');
 
-  const authors = [];
+  const users = [];
   const handles = ['CodeArtisan', 'ByteBard', 'LogicLuminary', 'PixelProphet', 'SyntaxSorcerer', 'DataDruid', 'CyberSage', 'NodeNinja', 'QueryQueen', 'ThePragma'];
 
   for (let i = 0; i < 10; i++) {
@@ -25,19 +24,12 @@ async function main() {
 
     const user = await prisma.user.create({
       data: {
-        author: {
-          create: {
-            handle,
-          },
-        },
+        handle,
       },
-      include: { author: true },
     });
 
-    if (user.author) {
-      authors.push(user.author);
-    }
-    console.log(`Created Author: ${handle}`);
+    users.push(user);
+    console.log(`Created User: ${handle}`);
   }
 
   const blogTopics = [
@@ -49,7 +41,7 @@ async function main() {
 
   console.log('--- Creating 100 Blogs ---');
   for (let i = 0; i < 100; i++) {
-    const author = authors[i % authors.length];
+    const user = users[i % users.length];
     const topic = blogTopics[Math.floor(Math.random() * blogTopics.length)];
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const title = `${adj} ${topic} Guide Part ${i + 1}`;
@@ -62,7 +54,7 @@ async function main() {
       data: {
         title,
         content,
-        authorId: author.id,
+        userId: user.id,
       },
     });
 

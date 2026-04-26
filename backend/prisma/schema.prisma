@@ -16,32 +16,17 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
+  handle    String   @unique
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // One-to-one relationship with Author
-  author    Author?
+  // One-to-many relationship with Blogs
+  blogs     Blog[]
 
   // WebAuthn Credentials
   passkeys  Passkey[]
 
   @@map("users")
-}
-
-model Author {
-  id        String   @id @default(uuid())
-  handle    String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relation to User
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @unique @map("user_id")
-
-  // One-to-many relationship with Blogs
-  blogs     Blog[]
-
-  @@map("authors")
 }
 
 model Blog {
@@ -52,9 +37,9 @@ model Blog {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Relation to Author
-  author    Author   @relation(fields: [authorId], references: [id])
-  authorId  String   @map("author_id")
+  // Relation to User
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
 
   @@map("blogs")
 }

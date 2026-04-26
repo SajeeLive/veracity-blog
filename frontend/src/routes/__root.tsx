@@ -1,14 +1,17 @@
-import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet, useLocation } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { useAppStore } from "@/store/appStore";
 import { Header } from "@/components/Header";
 
-export const Route = createRootRoute({
+interface MyRouterContext {
+  isAuthenticated: boolean;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootComponent,
 });
 
 function RootComponent() {
-  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
+  const { isAuthenticated } = Route.useRouteContext();
   const location = useLocation();
   const showSearch = !location.pathname.startsWith("/blog/");
 

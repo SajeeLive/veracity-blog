@@ -5,7 +5,7 @@ export interface BlogPost {
   title: string;
   content: string;
   createdAt: Date | string;
-  author: {
+  user: {
     handle: string;
   };
 }
@@ -77,7 +77,7 @@ export function BlogCardFooter({ children }: { children: React.ReactNode }) {
 
 export function BlogCardAuthor() {
   const { post } = useBlogCardContext();
-  return <span className="font-bold">Author: {post.author.handle}</span>;
+  return <span className="font-bold">Author: {post.user.handle}</span>;
 }
 
 export function BlogCardCreatedAt() {

@@ -13,22 +13,20 @@ export class BlogService {
     cursor?: { id: string };
     take?: number;
     search?: string;
-    authorHandle?: string;
   }) {
-    const { cursor, take = 10, search, authorHandle } = params;
+    const { cursor, take = 10, search } = params;
 
     const items = await this.prisma.blog.findMany({
       where: {
         isDeleted: false,
         AND: [
-          // Filter by Author Handle
-          authorHandle ? { author: { handle: authorHandle } } : {},
-          // Granular Search across Title and Content
+          // Granular Search across Title, Content, and User Handle
           search
             ? {
                 OR: [
                   { title: { contains: search, mode: 'insensitive' } },
                   { content: { contains: search, mode: 'insensitive' } },
+                  { user: { handle: { contains: search, mode: 'insensitive' } } },
                 ],
               }
             : {},
@@ -45,7 +43,7 @@ export class BlogService {
         title: true,
         content: true,
         createdAt: true,
-        author: {
+        user: {
           select: {
             id: true,
             handle: true,
@@ -81,7 +79,7 @@ export class BlogService {
         title: true,
         content: true,
         createdAt: true,
-        author: {
+        user: {
           select: {
             id: true,
             handle: true,

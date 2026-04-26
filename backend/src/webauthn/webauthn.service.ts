@@ -1,8 +1,10 @@
-import { Injectable, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { 
-  generateRegistrationOptions,
-} from '@simplewebauthn/server';
+import { generateRegistrationOptions } from '@simplewebauthn/server';
 import { PrismaService } from '../prisma/prisma.service';
 import { randomUUID } from 'crypto';
 
@@ -19,11 +21,11 @@ export class WebauthnService {
     }
 
     // Check if user already exists
-    const author = await this.prisma.author.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { handle },
     });
 
-    if (author) {
+    if (user) {
       throw new ConflictException('User already exists');
     }
 
@@ -52,7 +54,7 @@ export class WebauthnService {
         challenge: options.challenge,
         expectedOrigin: this.configService.get<string>('webauthn.origin')!,
         expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-        userId: webauthnUserId, 
+        userId: webauthnUserId,
       },
     });
 

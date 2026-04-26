@@ -9,7 +9,6 @@ export const getAllBlogsSchema = z
       .optional(),
     take: z.number().min(1).max(100).default(10), // Added a default for better DX
     search: z.string().trim().optional(), // Trims whitespace from user input
-    authorHandle: z.string().optional(),
   })
   .optional();
 

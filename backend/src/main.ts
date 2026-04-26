@@ -11,7 +11,8 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PORT') || Number(process.env.PORT) || 8080;
+  const port =
+    configService.get<number>('PORT') || Number(process.env.PORT) || 8080;
   const frontendUrl = configService.get<string>('FRONTEND_URL');
 
   if (!port) {
@@ -20,18 +21,18 @@ async function bootstrap() {
 
   if (!frontendUrl) {
     throw new Error('FRONTEND_URL is not defined in environment variables');
-  } 
+  }
 
   app.enableCors({
     origin: frontendUrl,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
-  
-  // Merge routers into a single root
- const { appRouter } = app.get(AppRouterHost);
 
- app.useGlobalInterceptors(new TransformInterceptor());
+  // Merge routers into a single root
+  const { appRouter } = app.get(AppRouterHost);
+
+  app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.use(
@@ -41,8 +42,8 @@ async function bootstrap() {
     }),
   );
 
- await app.listen(port, '0.0.0.0', () => {
-   console.log(`Application is running on: http://localhost:${port}`);
- });
+  await app.listen(port, '0.0.0.0', () => {
+    console.log(`Application is running on: http://localhost:${port}`);
+  });
 }
 bootstrap();

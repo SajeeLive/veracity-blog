@@ -5,10 +5,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { TrpcModule } from '../trpc/trpc.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    forwardRef(() => TrpcModule),
-  ],
+  imports: [PrismaModule, forwardRef(() => TrpcModule)],
   providers: [WebauthnService, WebauthnRouter],
   exports: [WebauthnRouter],
 })

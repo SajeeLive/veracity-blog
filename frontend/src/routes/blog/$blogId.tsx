@@ -16,7 +16,7 @@ function RouteComponent() {
   )
 
   if (isLoading) {
-    return <div className="text-center font-typewriter text-lg">Retrieving dispatch from archives...</div>
+    return <BlogDetailsCard.Skeleton />
   }
 
   if (error || !post) {

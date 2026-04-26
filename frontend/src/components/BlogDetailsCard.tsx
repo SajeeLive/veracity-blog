@@ -70,12 +70,37 @@ export function BlogDetailsCardCreatedAt() {
 
 export function BlogDetailsCardContent() {
   const { post } = useBlogDetailsCardContext();
+  // Filter out the seed-generated footer line if it exists
+  const paragraphs = post.content.split('\n')
+    .filter(p => !p.includes('Timestamp:') && !p.includes('Unique ID:'))
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
+
   return (
     <div className="prose prose-lg max-w-none font-typewriter text-[#43474b] leading-relaxed">
-      {post.content.split('\n').map((paragraph, index) => (
+      {paragraphs.map((paragraph, index) => (
         <p key={index} className="mb-6">{paragraph}</p>
       ))}
     </div>
+  );
+}
+
+export function BlogDetailsCardSkeleton() {
+  return (
+    <article className="max-w-3xl mx-auto bg-white p-8 md:p-12 torn-edge sketchy-border animate-pulse">
+      <div className="h-12 bg-primary/10 w-3/4 mb-6"></div>
+      <div className="flex justify-between items-center border-y border-dashed border-[#36454f33] py-4 mb-10">
+        <div className="h-4 bg-primary/10 w-32"></div>
+        <div className="h-4 bg-primary/10 w-24"></div>
+      </div>
+      <div className="space-y-4">
+        <div className="h-4 bg-primary/5 w-full"></div>
+        <div className="h-4 bg-primary/5 w-full"></div>
+        <div className="h-4 bg-primary/5 w-5/6"></div>
+        <div className="h-4 bg-primary/5 w-full"></div>
+        <div className="h-4 bg-primary/5 w-4/5"></div>
+      </div>
+    </article>
   );
 }
 
@@ -104,3 +129,4 @@ BlogDetailsCard.Meta = BlogDetailsCardMeta;
 BlogDetailsCard.Author = BlogDetailsCardAuthor;
 BlogDetailsCard.CreatedAt = BlogDetailsCardCreatedAt;
 BlogDetailsCard.Content = BlogDetailsCardContent;
+BlogDetailsCard.Skeleton = BlogDetailsCardSkeleton;

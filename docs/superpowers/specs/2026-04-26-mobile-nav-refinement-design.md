@@ -11,12 +11,12 @@ Refine the `HeaderMobileMenu` to handle state locally and trigger closure on rou
 - **Controlled State**: Use a local `isOpen` state in `HeaderMobileMenu` to manage the drawer's visibility.
 
 ### Component Architecture
-- **New Buttons**:
-    - `Header.LoginButton`: Navigation to `/auth/sign-in`.
+- **Standardized Buttons (Reused in Header & Drawer)**:
+    - `Header.LoginButton`: (Renamed from `HeaderAuthButton`) Navigation to `/auth/sign-in`.
     - `Header.MyDeskButton`: Navigation to `/my-desk`.
-    - `Header.LogoutButton`: Triggers logout action.
-    - `Header.CloseButton`: Closes the drawer using `DrawerClose`.
-- **Styling**: Ensure buttons inside the drawer use the same "stamped-ink" or "sketchy-border" styling as the rest of the application.
+    - `Header.LogoutButton`: (Renamed from `HeaderUnauthButton`) Triggers logout action.
+    - `Header.CloseButton`: (New) Closes the drawer using `DrawerClose`.
+- **Styling**: All buttons will accept an optional `className` to allow context-specific styling (e.g., larger padding for mobile drawer).
 
 ## 3. Technical Changes
 

@@ -29,13 +29,16 @@ function RouteComponent() {
       </section>
 
       {/* Blog Grid */}
-      {isLoading ? (
-        <div className="text-center font-typewriter text-lg">Loading dispatches...</div>
-      ) : error ? (
-        <div className="text-center font-typewriter text-red-600">Error: {error.message}</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
-          {data?.map((post: any, index: number) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, index) => {
+            const rotationClass = index % 3 === 1 ? 'rotate-1' : index % 3 === 2 ? '-rotate-1' : '';
+            return <BlogCardSkeleton key={index} rotationClass={rotationClass} />;
+          })
+        ) : error ? (
+          <div className="col-span-full text-center font-typewriter text-red-600">Error: {error.message}</div>
+        ) : (
+          data?.map((post: any, index: number) => {
             // Apply slight rotation for visual interest based on index
             const rotationClass = index % 3 === 1 ? 'rotate-1' : index % 3 === 2 ? '-rotate-1' : '';
             return (
@@ -43,9 +46,9 @@ function RouteComponent() {
                 <BlogCard post={{...post, rotationClass}} />
               </Link>
             )
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
 
       {/* Pagination */}
       <nav className="mt-24 flex justify-center items-center gap-4 md:gap-12">
@@ -94,6 +97,31 @@ function BlogCard({ post }: { post: any }) {
         </footer>
       </div>
     </article>
+  )
+}
+
+function BlogCardSkeleton({ rotationClass }: { rotationClass?: string }) {
+  return (
+    <div className={`relative h-full ${rotationClass || ''}`}>
+      <div className="absolute inset-0 translate-x-3 translate-y-3 hatch-shadow"></div>
+      <div className="relative h-full bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col animate-pulse">
+        <header className="mb-6">
+          <div className="h-8 bg-primary/10 w-3/4 mb-2"></div>
+          <div className="w-full h-px bg-[#36454f33] mt-2"></div>
+        </header>
+        <div className="flex-grow space-y-3">
+          <div className="h-4 bg-primary/5 w-full"></div>
+          <div className="h-4 bg-primary/5 w-full"></div>
+          <div className="h-4 bg-primary/5 w-5/6"></div>
+          <div className="h-4 bg-primary/5 w-full"></div>
+          <div className="h-4 bg-primary/5 w-4/5"></div>
+        </div>
+        <footer className="mt-8 pt-4 border-t border-dashed border-[#36454f33] flex justify-between items-end">
+          <div className="h-3 bg-primary/10 w-24"></div>
+          <div className="h-3 bg-primary/10 w-20"></div>
+        </footer>
+      </div>
+    </div>
   )
 }
 

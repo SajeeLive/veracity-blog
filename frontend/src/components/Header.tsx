@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
+import { cn } from "@/lib/utils";
 import {
   Drawer,
   DrawerClose,
@@ -143,7 +144,10 @@ function HeaderLoginButton({ className }: ButtonProps) {
   return (
     <Link 
       to="/auth/sign-in" 
-      className={`stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap ${className || ""}`}
+      className={cn(
+        "stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap",
+        className
+      )}
     >
       Log In
     </Link>
@@ -158,7 +162,10 @@ function HeaderMyDeskButton({ className }: ButtonProps) {
   return (
     <Link 
       to="/my-desk" 
-      className={`stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap ${className || ""}`}
+      className={cn(
+        "stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap",
+        className
+      )}
     >
       My Desk
     </Link>
@@ -174,7 +181,10 @@ function HeaderLogoutButton({ className }: ButtonProps) {
   return (
     <button 
       onClick={logout} 
-      className={`stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none whitespace-nowrap ${className || ""}`}
+      className={cn(
+        "stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none whitespace-nowrap",
+        className
+      )}
     >
       Logout
     </button>

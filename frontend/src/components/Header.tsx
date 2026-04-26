@@ -1,10 +1,26 @@
-import { ReactNode } from "react";
+import { ReactNode, createContext, useContext } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
+
+// --- Context ---
+interface HeaderContextType {
+  isAuthenticated: boolean;
+}
+
+const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
+
+function useHeaderContext() {
+  const context = useContext(HeaderContext);
+  if (!context) {
+    throw new Error("Header components must be used within a Header");
+  }
+  return context;
+}
 
 // --- Types ---
 interface HeaderProps {
   children: ReactNode;
+  isAuthenticated: boolean;
 }
 
 interface HeaderTitleProps {
@@ -13,13 +29,15 @@ interface HeaderTitleProps {
 
 // --- Components ---
 
-function HeaderRoot({ children }: HeaderProps) {
+function HeaderRoot({ children, isAuthenticated }: HeaderProps) {
   return (
-    <header className="bg-[#F5F5DC] text-[#36454F] font-serif font-bold tracking-tighter w-full top-0 border-b-2 border-[#36454F] border-dashed shadow-[4px_4px_0px_0px_rgba(54,69,79,1)] z-50 sticky">
-      <div className="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto">
-        {children}
-      </div>
-    </header>
+    <HeaderContext.Provider value={{ isAuthenticated }}>
+      <header className="bg-[#F5F5DC] text-[#36454F] font-serif font-bold tracking-tighter w-full top-0 border-b-2 border-[#36454F] border-dashed shadow-[4px_4px_0px_0px_rgba(54,69,79,1)] z-50 sticky">
+        <div className="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto">
+          {children}
+        </div>
+      </header>
+    </HeaderContext.Provider>
   );
 }
 
@@ -75,6 +93,10 @@ function HeaderSearch() {
 }
 
 function HeaderAuthButton() {
+  const { isAuthenticated } = useHeaderContext();
+  
+  if (isAuthenticated) return null;
+
   return (
     <Link to="/" className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline">
       Sign In
@@ -83,7 +105,11 @@ function HeaderAuthButton() {
 }
 
 function HeaderUnauthButton() {
+  const { isAuthenticated } = useHeaderContext();
   const logout = useAppStore((state) => state.logout);
+
+  if (!isAuthenticated) return null;
+
   return (
     <button onClick={logout} className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none">
       Logout

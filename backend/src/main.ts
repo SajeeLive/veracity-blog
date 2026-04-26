@@ -5,11 +5,14 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { AppRouterHost } from './trpc/app.router';
 import { ConfigService } from '@nestjs/config';
+import cookieParser from 'cookie-parser';
+import { TrpcService } from './trpc/trpc.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
+  const trpcService = app.get(TrpcService);
 
   const port =
     configService.get<number>('PORT') || Number(process.env.PORT) || 8080;
@@ -22,6 +25,8 @@ async function bootstrap() {
   if (!frontendUrl) {
     throw new Error('FRONTEND_URL is not defined in environment variables');
   }
+
+  app.use(cookieParser(configService.get('auth.cookieSecret')));
 
   app.enableCors({
     origin: frontendUrl,
@@ -39,6 +44,7 @@ async function bootstrap() {
     '/trpc',
     trpcExpress.createExpressMiddleware({
       router: appRouter,
+      createContext: trpcService.createContext.bind(trpcService),
     }),
   );
 

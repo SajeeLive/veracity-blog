@@ -121,9 +121,8 @@ function HeaderAuthButton() {
   
   if (isAuthenticated) return null;
 
-  // TODO: no wrap
   return (
-    <Link to="/" className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline">
+    <Link to="/" className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap">
       Sign In
     </Link>
   );
@@ -136,7 +135,7 @@ function HeaderUnauthButton() {
   if (!isAuthenticated) return null;
 
   return (
-    <button onClick={logout} className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none">
+    <button onClick={logout} className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none whitespace-nowrap">
       Logout
     </button>
   );

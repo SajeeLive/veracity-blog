@@ -21,7 +21,6 @@ export class BlogRouter {
             cursor: input?.cursor,
             take: input?.take,
             search: input?.search,
-            authorHandle: input?.authorHandle,
           });
         }),
 

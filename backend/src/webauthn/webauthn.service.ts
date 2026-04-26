@@ -67,7 +67,7 @@ export class WebauthnService {
 
   async verifyRegistration(handle: string, response: any) {
     const clientDataJSON = JSON.parse(
-      Buffer.from(response.response.clientDataJSON, 'base64').toString(),
+      Buffer.from(response.response.clientDataJSON, 'base64url').toString(),
     );
     const challengeStr = clientDataJSON.challenge;
 
@@ -95,6 +95,8 @@ export class WebauthnService {
         requireUserVerification: false,
       });
     } catch (error) {
+      // Cleanup challenge on verification failure
+      await this.prisma.authChallenge.delete({ where: { id: challenge.id } }).catch(() => {});
       throw new BadRequestException((error as Error).message);
     }
 
@@ -104,35 +106,45 @@ export class WebauthnService {
       const { credential, credentialDeviceType, credentialBackedUp } =
         registrationInfo;
 
-      await this.prisma.$transaction(async (tx) => {
-        await tx.user.create({
-          data: {
-            id: challenge.userId!,
-            handle,
-          },
-        });
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          await tx.user.create({
+            data: {
+              id: challenge.userId!,
+              handle,
+            },
+          });
 
-        await tx.passkey.create({
-          data: {
-            id: credential.id,
-            publicKey: Buffer.from(credential.publicKey),
-            webauthnUserId: challenge.userId!,
-            counter: credential.counter,
-            deviceType: credentialDeviceType,
-            backedUp: credentialBackedUp,
-            transports: credential.transports?.join(','),
-            userId: challenge.userId!,
-          },
-        });
+          await tx.passkey.create({
+            data: {
+              id: credential.id,
+              publicKey: Buffer.from(credential.publicKey),
+              webauthnUserId: challenge.userId!,
+              counter: BigInt(credential.counter),
+              deviceType: credentialDeviceType,
+              backedUp: credentialBackedUp,
+              transports: credential.transports?.join(','),
+              userId: challenge.userId!,
+            },
+          });
 
-        await tx.authChallenge.delete({
-          where: { id: challenge.id },
+          await tx.authChallenge.delete({
+            where: { id: challenge.id },
+          });
         });
-      });
+      } catch (error: any) {
+        // Handle unique constraint violation (P2002)
+        if (error.code === 'P2002') {
+          throw new ConflictException('Handle is already taken');
+        }
+        throw error;
+      }
 
       return { verified: true };
     }
 
+    // Cleanup challenge if not verified
+    await this.prisma.authChallenge.delete({ where: { id: challenge.id } }).catch(() => {});
     return { verified: false };
   }
 }

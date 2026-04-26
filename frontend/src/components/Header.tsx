@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
 
 // --- Context ---
@@ -52,6 +52,7 @@ function HeaderTitle({ text = "The Ledger" }: HeaderTitleProps) {
 }
 
 function HeaderSearch() {
+  const location = useLocation();
   const searchQuery = useAppStore((state) => state.searchQuery);
   const setSearchQuery = useAppStore((state) => state.setSearchQuery);
   const setDebouncedSearchQuery = useAppStore((state) => state.setDebouncedSearchQuery);
@@ -70,6 +71,9 @@ function HeaderSearch() {
 
     return () => clearTimeout(handler);
   }, [searchQuery, setDebouncedSearchQuery, setIsSearching]);
+
+  const isSearchHidden = location.pathname.startsWith("/blog/") || location.pathname.startsWith("/auth");
+  if (isSearchHidden) return null;
 
   return (
     <>
@@ -122,8 +126,26 @@ function HeaderAuthButton() {
   if (isAuthenticated) return null;
 
   return (
-    <Link to="/" className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap">
-      Sign In
+    <Link 
+      to="/auth/sign-in" 
+      className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap"
+    >
+      Log In
+    </Link>
+  );
+}
+
+function HeaderMyDeskButton() {
+  const { isAuthenticated } = useHeaderContext();
+  
+  if (!isAuthenticated) return null;
+
+  return (
+    <Link 
+      to="/my-desk" 
+      className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap"
+    >
+      My Desk
     </Link>
   );
 }
@@ -146,5 +168,6 @@ export const Header = Object.assign(HeaderRoot, {
   Title: HeaderTitle,
   Search: HeaderSearch,
   AuthButton: HeaderAuthButton,
+  MyDeskButton: HeaderMyDeskButton,
   UnauthButton: HeaderUnauthButton,
 });

@@ -30,7 +30,7 @@ function RouteComponent() {
         <Link to="/">
           <Button variant="outline" className="font-typewriter flex items-center gap-2">
             <span className="material-symbols-outlined text-sm" data-icon="arrow_back">arrow_back</span>
-            Back to Listing
+            Ledgers
           </Button>
         </Link>
       </div>

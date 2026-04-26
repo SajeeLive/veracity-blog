@@ -15,11 +15,12 @@ function RouteComponent() {
   const setIsSearching = useAppStore((state) => state.setIsSearching);
   
   const [pageIndex, setPageIndex] = useState(0);
+  const [lastQuery, setLastQuery] = useState(debouncedSearchQuery);
 
-  // Reset page index when search changes
-  useEffect(() => {
+  if (debouncedSearchQuery !== lastQuery) {
     setPageIndex(0);
-  }, [debouncedSearchQuery]);
+    setLastQuery(debouncedSearchQuery);
+  }
 
   const { 
     data, 

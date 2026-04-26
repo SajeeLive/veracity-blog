@@ -121,6 +121,7 @@ function HeaderAuthButton() {
   
   if (isAuthenticated) return null;
 
+  // TODO: no wrap
   return (
     <Link to="/" className="stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline">
       Sign In

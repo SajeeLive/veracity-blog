@@ -13,10 +13,11 @@ function RootComponent() {
   return (
     <div className="min-h-screen bg-background font-mono text-foreground selection:bg-primary-container selection:text-white">
       
-      <Header>
+      <Header isAuthenticated={isAuthenticated}>
         <Header.Title />
         <Header.Search />
-        {isAuthenticated ? <Header.UnauthButton /> : <Header.AuthButton />}
+        <Header.AuthButton />
+        <Header.UnauthButton />
       </Header>
 
       <main className="max-w-screen-xl mx-auto px-6 py-12">

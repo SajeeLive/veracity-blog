@@ -6,7 +6,7 @@ import type { AppRouter } from '../../../../backend/src/trpc/app.router';
 
 export const queryClient = new QueryClient();
 
-const trpcClient = createTRPCClient<AppRouter>({
+export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       url: `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/trpc`,

@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { WebauthnService } from './webauthn.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import * as simplewebauthn from '@simplewebauthn/server';
 
 jest.mock('@simplewebauthn/server');
@@ -19,18 +23,23 @@ describe('WebauthnService', () => {
           provide: PrismaService,
           useValue: {
             user: { findUnique: jest.fn(), create: jest.fn() },
-            authChallenge: { findFirst: jest.fn(), delete: jest.fn().mockResolvedValue({}) },
+            authChallenge: {
+              findFirst: jest.fn(),
+              delete: jest.fn().mockResolvedValue({}),
+            },
             passkey: { create: jest.fn() },
             $transaction: jest.fn((cb) => cb(prisma)),
           },
         },
         {
           provide: ConfigService,
-          useValue: { get: jest.fn((key) => {
-            if (key === 'webauthn.origin') return 'http://localhost:5173';
-            if (key === 'webauthn.rpID') return 'localhost';
-            return null;
-          })},
+          useValue: {
+            get: jest.fn((key) => {
+              if (key === 'webauthn.origin') return 'http://localhost:5173';
+              if (key === 'webauthn.rpID') return 'localhost';
+              return null;
+            }),
+          },
         },
       ],
     }).compile();
@@ -44,12 +53,15 @@ describe('WebauthnService', () => {
 
     const response = {
       response: {
-        clientDataJSON: Buffer.from(JSON.stringify({ challenge: 'test-challenge' })).toString('base64url'),
+        clientDataJSON: Buffer.from(
+          JSON.stringify({ challenge: 'test-challenge' }),
+        ).toString('base64url'),
       },
     };
 
-    await expect(service.verifyRegistration('test', response as any))
-      .rejects.toThrow(UnauthorizedException);
+    await expect(
+      service.verifyRegistration('test', response as any),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
   it('should throw ConflictException if handle is already taken during transaction', async () => {
@@ -74,12 +86,15 @@ describe('WebauthnService', () => {
 
     const response = {
       response: {
-        clientDataJSON: Buffer.from(JSON.stringify({ challenge: 'test-challenge' })).toString('base64url'),
+        clientDataJSON: Buffer.from(
+          JSON.stringify({ challenge: 'test-challenge' }),
+        ).toString('base64url'),
       },
     };
 
-    await expect(service.verifyRegistration('test', response as any))
-      .rejects.toThrow(ConflictException);
+    await expect(
+      service.verifyRegistration('test', response as any),
+    ).rejects.toThrow(ConflictException);
   });
 
   it('should cleanup challenge on verification failure', async () => {
@@ -89,17 +104,24 @@ describe('WebauthnService', () => {
       userId: 'user-id',
     };
     (prisma.authChallenge.findFirst as jest.Mock).mockResolvedValue(challenge);
-    (simplewebauthn.verifyRegistrationResponse as jest.Mock).mockRejectedValue(new Error('Verification failed'));
+    (simplewebauthn.verifyRegistrationResponse as jest.Mock).mockRejectedValue(
+      new Error('Verification failed'),
+    );
 
     const response = {
       response: {
-        clientDataJSON: Buffer.from(JSON.stringify({ challenge: 'test-challenge' })).toString('base64url'),
+        clientDataJSON: Buffer.from(
+          JSON.stringify({ challenge: 'test-challenge' }),
+        ).toString('base64url'),
       },
     };
 
-    await expect(service.verifyRegistration('test', response as any))
-      .rejects.toThrow(BadRequestException);
-    expect(prisma.authChallenge.delete).toHaveBeenCalledWith({ where: { id: 'challenge-id' } });
+    await expect(
+      service.verifyRegistration('test', response as any),
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.authChallenge.delete).toHaveBeenCalledWith({
+      where: { id: 'challenge-id' },
+    });
   });
 
   it('should successfully verify registration and create user/passkey', async () => {
@@ -112,7 +134,12 @@ describe('WebauthnService', () => {
     (simplewebauthn.verifyRegistrationResponse as jest.Mock).mockResolvedValue({
       verified: true,
       registrationInfo: {
-        credential: { id: 'cred-id', publicKey: new Uint8Array(), counter: 0, transports: ['usb'] },
+        credential: {
+          id: 'cred-id',
+          publicKey: new Uint8Array(),
+          counter: 0,
+          transports: ['usb'],
+        },
         credentialDeviceType: 'singleDevice',
         credentialBackedUp: true,
       },
@@ -120,7 +147,9 @@ describe('WebauthnService', () => {
 
     const response = {
       response: {
-        clientDataJSON: Buffer.from(JSON.stringify({ challenge: 'test-challenge' })).toString('base64url'),
+        clientDataJSON: Buffer.from(
+          JSON.stringify({ challenge: 'test-challenge' }),
+        ).toString('base64url'),
       },
     };
 

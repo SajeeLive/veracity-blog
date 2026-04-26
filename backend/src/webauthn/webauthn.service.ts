@@ -96,7 +96,9 @@ export class WebauthnService {
       });
     } catch (error) {
       // Cleanup challenge on verification failure
-      await this.prisma.authChallenge.delete({ where: { id: challenge.id } }).catch(() => {});
+      await this.prisma.authChallenge
+        .delete({ where: { id: challenge.id } })
+        .catch(() => {});
       throw new BadRequestException((error as Error).message);
     }
 
@@ -144,7 +146,9 @@ export class WebauthnService {
     }
 
     // Cleanup challenge if not verified
-    await this.prisma.authChallenge.delete({ where: { id: challenge.id } }).catch(() => {});
+    await this.prisma.authChallenge
+      .delete({ where: { id: challenge.id } })
+      .catch(() => {});
     return { verified: false };
   }
 }

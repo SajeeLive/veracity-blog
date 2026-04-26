@@ -19,11 +19,11 @@ export class WebauthnService {
     }
 
     // Check if user already exists
-    const author = await this.prisma.author.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { handle },
     });
 
-    if (author) {
+    if (user) {
       throw new ConflictException('User already exists');
     }
 

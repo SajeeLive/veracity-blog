@@ -22,7 +22,7 @@ export class BlogService {
         isDeleted: false,
         AND: [
           // Filter by Author Handle
-          authorHandle ? { author: { handle: authorHandle } } : {},
+          authorHandle ? { user: { handle: authorHandle } } : {},
           // Granular Search across Title and Content
           search
             ? {
@@ -45,7 +45,7 @@ export class BlogService {
         title: true,
         content: true,
         createdAt: true,
-        author: {
+        user: {
           select: {
             id: true,
             handle: true,
@@ -81,7 +81,7 @@ export class BlogService {
         title: true,
         content: true,
         createdAt: true,
-        author: {
+        user: {
           select: {
             id: true,
             handle: true,

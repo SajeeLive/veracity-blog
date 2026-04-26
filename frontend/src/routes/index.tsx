@@ -48,7 +48,7 @@ function RouteComponent() {
       )}
 
       {/* Pagination */}
-      <nav className="mt-24 flex justify-center items-center gap-12">
+      <nav className="mt-24 flex justify-center items-center gap-4 md:gap-12">
         <button className="relative active:scale-95 transition-transform duration-75">
           <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
           <div className="relative bg-[#36454F] text-[#F5F5DC] font-typewriter font-bold px-8 py-3 stamp-btn border-2 border-[#36454F]">

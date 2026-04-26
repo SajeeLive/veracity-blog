@@ -20,7 +20,7 @@ function RootComponent() {
         <Header.UnauthButton />
       </Header>
 
-      <main className="max-w-screen-xl mx-auto px-6 py-12">
+      <main className="max-w-screen-xl mx-auto px-6 pt-12 pb-32 md:pb-12">
         <Outlet />
       </main>
 

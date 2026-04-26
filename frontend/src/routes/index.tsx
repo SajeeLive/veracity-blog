@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { trpc } from '@/lib/trpc/client'
 import { useAppStore } from '@/store/appStore'
 import { useState, useEffect, useMemo } from 'react'
+import { BlogCard, BlogCardSkeleton, type BlogPost } from '@/components/BlogCard'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -48,7 +49,7 @@ function RouteComponent() {
   }, [isFetching, setIsSearching]);
 
   const currentPageData = useMemo(() => {
-    return data?.pages[pageIndex]?.items || [];
+    return (data?.pages[pageIndex]?.items as BlogPost[]) || [];
   }, [data, pageIndex]);
 
   const handleNext = () => {
@@ -94,12 +95,12 @@ function RouteComponent() {
             No dispatches found in the archives for "{searchQuery}"
           </div>
         ) : (
-          currentPageData.map((post: any, index: number) => {
+          currentPageData.map((post: BlogPost, index: number) => {
             // Apply slight rotation for visual interest based on index
             const rotationClass = index % 3 === 1 ? 'rotate-1' : index % 3 === 2 ? '-rotate-1' : '';
             return (
               <Link to="/blog/$blogId" params={{ blogId: post.id }} key={post.id} className="block group">
-                <BlogCard post={{...post, rotationClass}} />
+                <BlogCard post={post} rotationClass={rotationClass} />
               </Link>
             )
           })
@@ -138,60 +139,3 @@ function RouteComponent() {
     </>
   )
 }
-
-function BlogCard({ post }: { post: any }) {
-  // Format date to Roman numerals/vintage format if needed, or just use toLocaleDateString
-  const formattedDate = new Date(post.createdAt).toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).toUpperCase();
-
-  return (
-    <article className={`relative h-full ${post.rotationClass || ''}`}>
-      <div className="absolute inset-0 translate-x-3 translate-y-3 hatch-shadow group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-200"></div>
-      <div className="relative h-full bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col">
-        <header className="mb-6">
-          <h3 className="font-typewriter font-bold text-2xl text-[#202f38] leading-tight">{post.title}</h3>
-          <div className="w-full h-px bg-[#36454f33] mt-2"></div>
-        </header>
-        <div className="flex-grow">
-          <p className="font-typewriter text-[#43474b] line-clamp-6 leading-relaxed">
-            {post.content.substring(0, 150)}... {/* Using content as excerpt for now */}
-          </p>
-        </div>
-        <footer className="mt-8 pt-4 border-t border-dashed border-[#36454f33] flex justify-between items-end font-typewriter text-xs">
-          <span className="font-bold">Author: {post.author.handle}</span>
-          <span className="opacity-60 italic">{formattedDate}</span>
-        </footer>
-      </div>
-    </article>
-  )
-}
-
-function BlogCardSkeleton({ rotationClass }: { rotationClass?: string }) {
-  return (
-    <div className={`relative h-full ${rotationClass || ''}`}>
-      <div className="absolute inset-0 translate-x-3 translate-y-3 hatch-shadow"></div>
-      <div className="relative h-full bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col animate-pulse">
-        <header className="mb-6">
-          <div className="h-8 bg-primary/10 w-3/4 mb-2"></div>
-          <div className="w-full h-px bg-[#36454f33] mt-2"></div>
-        </header>
-        <div className="flex-grow space-y-3">
-          <div className="h-4 bg-primary/5 w-full"></div>
-          <div className="h-4 bg-primary/5 w-full"></div>
-          <div className="h-4 bg-primary/5 w-5/6"></div>
-          <div className="h-4 bg-primary/5 w-full"></div>
-          <div className="h-4 bg-primary/5 w-4/5"></div>
-        </div>
-        <footer className="mt-8 pt-4 border-t border-dashed border-[#36454f33] flex justify-between items-end">
-          <div className="h-3 bg-primary/10 w-24"></div>
-          <div className="h-3 bg-primary/10 w-20"></div>
-        </footer>
-      </div>
-    </div>
-  )
-}
-
-

@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WebauthnModule } from './webauthn/webauthn.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WebauthnModule } from './webauthn/webauthn.module';
     BlogModule,
     PrismaModule,
     WebauthnModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

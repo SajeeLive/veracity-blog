@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode, createContext, useContext, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
 
@@ -54,39 +54,53 @@ function HeaderTitle({ text = "The Ledger" }: HeaderTitleProps) {
 function HeaderSearch() {
   const searchQuery = useAppStore((state) => state.searchQuery);
   const setSearchQuery = useAppStore((state) => state.setSearchQuery);
+  const setDebouncedSearchQuery = useAppStore((state) => state.setDebouncedSearchQuery);
+  const isSearching = useAppStore((state) => state.isSearching);
+  const setIsSearching = useAppStore((state) => state.setIsSearching);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setIsSearching(true);
+    } else {
+      setIsSearching(false);
+    }
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery, setDebouncedSearchQuery, setIsSearching]);
+
+  const SearchInput = ({ mobile = false }: { mobile?: boolean }) => (
+    <div className="relative group w-full">
+      <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
+      <div className={`relative flex items-center w-full bg-white sketchy-border px-3 ${mobile ? 'py-2' : 'py-1'}`}>
+        {isSearching ? (
+          <span className="material-symbols-outlined text-primary-container mr-2 animate-spin text-sm" data-icon="progress_activity">progress_activity</span>
+        ) : (
+          <span className="material-symbols-outlined text-primary-container mr-2" data-icon="search">search</span>
+        )}
+        <input 
+          className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
+          placeholder="Search the archives..." 
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <>
       {/* Desktop Search (in header) */}
       <div className="hidden md:flex relative group w-64 lg:w-96">
-        <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
-        <div className="relative flex items-center w-full bg-white sketchy-border px-3 py-1">
-          <span className="material-symbols-outlined text-primary-container mr-2" data-icon="search">search</span>
-          <input 
-            className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
-            placeholder="Search the archives..." 
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <SearchInput />
       </div>
 
       {/* Mobile Search (fixed bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 p-4 bg-[#F5F5DC] border-t-2 border-[#36454F]">
-        <div className="relative group w-full">
-          <div className="absolute -right-1 -bottom-1 w-full h-full hatch-shadow"></div>
-          <div className="relative flex items-center w-full bg-white sketchy-border px-3 py-2">
-            <span className="material-symbols-outlined text-primary-container mr-2" data-icon="search">search</span>
-            <input 
-              className="w-full bg-transparent border-none outline-none focus:ring-0 font-typewriter text-sm placeholder:text-outline/50 p-0" 
-              placeholder="Search the archives..." 
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
+        <SearchInput mobile />
       </nav>
     </>
   );

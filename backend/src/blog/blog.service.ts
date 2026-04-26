@@ -17,7 +17,7 @@ export class BlogService {
   }) {
     const { cursor, take = 10, search, authorHandle } = params;
 
-    return this.prisma.blog.findMany({
+    const items = await this.prisma.blog.findMany({
       where: {
         isDeleted: false,
         AND: [
@@ -34,7 +34,7 @@ export class BlogService {
             : {},
         ],
       },
-      take,
+      take: take + 1, // Fetch one extra item to determine if there's a next page
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor.id } : undefined,
       orderBy: {
@@ -53,6 +53,17 @@ export class BlogService {
         },
       },
     });
+
+    let nextCursor: { id: string } | undefined = undefined;
+    if (items.length > take) {
+      const nextItem = items.pop();
+      nextCursor = { id: nextItem!.id };
+    }
+
+    return {
+      items,
+      nextCursor,
+    };
   }
 
   /**

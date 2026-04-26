@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useEffect } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
 import { cn } from "@/lib/utils";
@@ -202,12 +202,17 @@ function HeaderCloseButton() {
 }
 
 function HeaderMobileMenu() {
-  const { isAuthenticated } = useHeaderContext();
-  const logout = useAppStore((state) => state.logout);
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  // Auto-close on navigation
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   return (
     <div className="md:hidden">
-      <Drawer>
+      <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
           <button className="flex items-center justify-center p-2">
             <span className="material-symbols-outlined text-3xl" data-icon="menu">menu</span>
@@ -223,38 +228,12 @@ function HeaderMobileMenu() {
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col gap-4 p-6">
-            {!isAuthenticated ? (
-              <Link 
-                to="/auth/sign-in" 
-                className="stamped-ink px-4 py-4 font-typewriter text-lg font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline"
-              >
-                Log In
-              </Link>
-            ) : (
-              <>
-                <Link 
-                  to="/my-desk" 
-                  className="stamped-ink px-4 py-4 font-typewriter text-lg font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline"
-                >
-                  My Desk
-                </Link>
-                <button 
-                  onClick={() => {
-                    logout();
-                  }} 
-                  className="stamped-ink px-4 py-4 font-typewriter text-lg font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none"
-                >
-                  Logout
-                </button>
-              </>
-            )}
+            <HeaderLoginButton className="py-4 text-lg" />
+            <HeaderMyDeskButton className="py-4 text-lg" />
+            <HeaderLogoutButton className="py-4 text-lg" />
           </div>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline" className="font-typewriter uppercase tracking-widest border-2 border-[#36454F]">
-                Close
-              </Button>
-            </DrawerClose>
+            <HeaderCloseButton />
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

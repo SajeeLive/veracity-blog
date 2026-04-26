@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useForm } from '@tanstack/react-form'
 import { registerPasskey } from '../../lib/webauthn'
 import { useState } from 'react'
 
@@ -10,31 +11,32 @@ function SignUpComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  const form = useForm({
+    defaultValues: {
+      handle: '',
+    },
+    onSubmit: async ({ value }) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const formData = new FormData(e.currentTarget as HTMLFormElement);
-      const handle = formData.get('handle') as string;
+      try {
+        const handle = value.handle;
 
-      if (!handle) throw new Error('Username is required');
-
-      const regResponse = await registerPasskey(handle);
-      console.log('Registration successful:', regResponse);
-      
-      alert('Passkey created! (Waiting for server verification implementation)');
-    } catch (err: any) {
-      if (err.name === 'InvalidStateError') {
-        setError('This device is already registered.');
-      } else {
-        setError(err.message || 'Registration failed');
+        const regResponse = await registerPasskey(handle);
+        console.log('Registration successful:', regResponse);
+        
+        alert('Passkey created! (Waiting for server verification implementation)');
+      } catch (err: any) {
+        if (err.name === 'InvalidStateError') {
+          setError('This device is already registered.');
+        } else {
+          setError(err.message || 'Registration failed');
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80dvh] p-6 font-sans text-[#1d1d1f] dark:text-[#f5f5f7]">
@@ -54,21 +56,43 @@ function SignUpComponent() {
             <p className="text-[0.9rem] text-[#86868b]">Set up your identity with a secure passkey.</p>
           </div>
           
-          <form onSubmit={handleSignUp} className="space-y-6">
-            <div>
-              <label htmlFor="handle" className="block text-[0.7rem] text-[#86868b] uppercase tracking-wider font-semibold mb-2">
-                Author Handle
-              </label>
-              <input
-                id="handle"
-                name="handle"
-                type="text"
-                required
-                autoFocus
-                className="w-full px-3 py-2.5 bg-[#f5f5f7] dark:bg-[#1d1d1f] border border-[#d1d1d6] dark:border-[#424245] rounded-[8px] text-[0.95rem] placeholder-[#aeaeb2] focus:outline-none focus:ring-2 focus:ring-[#0071e3] transition-all"
-                placeholder="e.g. johndoe"
-              />
-            </div>
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }} 
+            className="space-y-6"
+          >
+            <form.Field
+              name="handle"
+              validators={{
+                onChange: ({ value }) => 
+                  !value ? 'Username is required' : undefined,
+              }}
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-[0.7rem] text-[#86868b] uppercase tracking-wider font-semibold mb-2">
+                    Author Handle
+                  </label>
+                  <input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    autoFocus
+                    className="w-full px-3 py-2.5 bg-[#f5f5f7] dark:bg-[#1d1d1f] border border-[#d1d1d6] dark:border-[#424245] rounded-[8px] text-[0.95rem] placeholder-[#aeaeb2] focus:outline-none focus:ring-2 focus:ring-[#0071e3] transition-all"
+                    placeholder="e.g. johndoe"
+                  />
+                  {field.state.meta.errors ? (
+                    <div className="mt-2 text-[0.8rem] text-[#ff3b30]">
+                      {field.state.meta.errors.join(', ')}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            />
 
             {error && (
               <div className="p-3 bg-[#ff3b30]/10 text-[#ff3b30] text-[0.85rem] rounded-[8px] border border-[#ff3b30]/20">
@@ -76,13 +100,18 @@ function SignUpComponent() {
               </div>
             )}
 
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="w-full h-11 bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium rounded-[8px] text-[0.9rem] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
-            >
-              {isLoading ? 'Creating Passkey...' : 'Continue'}
-            </button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <button 
+                  type="submit" 
+                  disabled={!canSubmit || isSubmitting || isLoading}
+                  className="w-full h-11 bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium rounded-[8px] text-[0.9rem] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                >
+                  {isSubmitting || isLoading ? 'Creating Passkey...' : 'Continue'}
+                </button>
+              )}
+            />
           </form>
 
           <div className="mt-10 pt-6 border-t border-[#d1d1d6] dark:border-[#424245] text-center">

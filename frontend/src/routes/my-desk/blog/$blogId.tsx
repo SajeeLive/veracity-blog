@@ -111,7 +111,7 @@ function AuthorBlogPreview() {
 
       <div className="relative">
         {/* Cross-hatch "shadow" */}
-        <div className="absolute inset-0 translate-x-3 translate-y-3 cross-hatch border-[2px] border-slate-800 opacity-20 pointer-events-none"></div>
+        <div className="absolute inset-0 translate-x-3 translate-y-3 cross-hatch border-[2px] border-slate-800 opacity-20 pointer-events-none bg-white"></div>
         
         {/* The Paper Canvas */}
         <div className="relative paper-texture p-8 md:p-16 min-h-[600px] border-[3px] border-slate-800 sketch-border flex flex-col">
@@ -137,7 +137,7 @@ function AuthorBlogPreview() {
                       className="text-4xl md:text-5xl font-serif text-slate-800 bg-transparent border-b-2 border-dashed border-slate-300 focus:border-slate-800 focus:ring-0 p-2 placeholder-slate-300 leading-tight writing-field w-full"
                       placeholder="Title of your entry..."
                     />
-                    {field.state.meta.errors ? (
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
                       <em className="text-xs text-destructive font-mono">{field.state.meta.errors.join(', ')}</em>
                     ) : null}
                   </div>
@@ -181,7 +181,7 @@ function AuthorBlogPreview() {
                       placeholder="Begin your correspondence here..."
                       spellCheck="false"
                     />
-                    {field.state.meta.errors ? (
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
                       <em className="text-xs text-destructive font-mono">{field.state.meta.errors.join(', ')}</em>
                     ) : null}
                   </div>

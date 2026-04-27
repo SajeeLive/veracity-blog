@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { BlogDetailsCard } from '@/components/BlogDetailsCard'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/my-desk/blog/$blogId')({
   component: AuthorBlogPreview,
@@ -27,13 +28,17 @@ function AuthorBlogPreview() {
     trpc.myDesk.updateMyBlog.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries(trpc.myDesk.getMyBlogById.queryOptions({ id: blogId }))
-        queryClient.invalidateQueries(trpc.myDesk.getMyBlogs.queryOptions())
+        queryClient.invalidateQueries(trpc.myDesk.getMyBlogs.queryOptions({}))
         // Also invalidate public blog query if it exists
         queryClient.invalidateQueries(trpc.blog.getBlogById.queryOptions({ id: blogId }))
-        alert('Changes applied and sealed.')
+        toast.success('Record Applied', {
+          description: 'The ledger has been updated and sealed with the new entry.',
+        })
       },
       onError: (err) => {
-        alert(`Failed to seal changes: ${err.message}`)
+        toast.error('Sealing Failed', {
+          description: `The archival process encountered an error: ${err.message}`,
+        })
       }
     })
   )

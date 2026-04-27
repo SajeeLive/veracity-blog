@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Header } from "@/components/Header";
 import { trpc } from "@/lib/trpc/client";
 import { useAppStore, AppState } from "@/store/appStore";
+import { Toaster } from "@/components/ui/sonner";
 
 interface MyRouterContext extends AppState {
   trpc: typeof trpc;
@@ -37,6 +38,7 @@ function RootComponent() {
         <Outlet />
       </main>
 
+      <Toaster />
       <TanStackRouterDevtools />
     </div>
   );

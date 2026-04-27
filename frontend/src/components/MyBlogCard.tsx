@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { Link } from '@tanstack/react-router';
 import { cn } from '@/lib/utils';
 
-interface MyBlog {
+export interface MyBlog {
   id: string;
   title: string;
   content: string;
@@ -23,10 +23,18 @@ function useMyBlogCardContext() {
   return context;
 }
 
+const formatDate = (date: string | Date) =>
+  new Date(date)
+    .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    .toUpperCase();
+
 export function MyBlogCardRoot({ blog, rotationClass, children }: { blog: MyBlog; rotationClass?: string; children: React.ReactNode }) {
   return (
     <MyBlogCardContext.Provider value={{ blog }}>
-      <article className={cn("relative group transition-transform duration-300", rotationClass)}>
+      <article 
+        className={cn("relative group transition-transform duration-300", rotationClass)}
+        aria-labelledby={`blog-title-${blog.id}`}
+      >
         <div className="absolute -right-4 -bottom-4 w-full h-full hatch-shadow -z-10"></div>
         <div className="bg-[#FDFCF0] p-8 sketchy-border relative flex flex-col h-full">
           {children}
@@ -38,7 +46,14 @@ export function MyBlogCardRoot({ blog, rotationClass, children }: { blog: MyBlog
 
 export function MyBlogCardTitle() {
   const { blog } = useMyBlogCardContext();
-  return <h3 className="font-serif italic text-2xl text-slate-900 leading-tight mb-4">{blog.title}</h3>;
+  return (
+    <h3 
+      id={`blog-title-${blog.id}`}
+      className="font-serif italic text-2xl text-slate-900 leading-tight mb-4"
+    >
+      {blog.title}
+    </h3>
+  );
 }
 
 export function MyBlogCardContent() {
@@ -48,14 +63,29 @@ export function MyBlogCardContent() {
 
 export function MyBlogCardCreatedAt() {
   const { blog } = useMyBlogCardContext();
-  const formatDate = (date: string | Date) => new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-  return <div className="mt-auto opacity-60 font-typewriter text-[10px] uppercase">Created: {formatDate(blog.createdAt)}</div>;
+  return (
+    <div className="mt-auto opacity-60 font-typewriter text-[10px] uppercase">
+      Created: {formatDate(blog.createdAt)}
+    </div>
+  );
 }
 
 export function MyBlogCardUpdatedAt() {
   const { blog } = useMyBlogCardContext();
-  const formatDate = (date: string | Date) => new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-  return <div className="opacity-60 font-typewriter text-[10px] uppercase">Updated: {formatDate(blog.updatedAt)}</div>;
+  return (
+    <div className="opacity-60 font-typewriter text-[10px] uppercase">
+      Updated: {formatDate(blog.updatedAt)}
+    </div>
+  );
+}
+
+export function MyBlogCardMetadata() {
+  return (
+    <div className="mt-auto space-y-1">
+      <MyBlogCardCreatedAt />
+      <MyBlogCardUpdatedAt />
+    </div>
+  );
 }
 
 export function MyBlogCardStatus() {
@@ -71,7 +101,9 @@ export function MyBlogCardActions() {
       <Link to="/my-desk/blog/$blogId" params={{ blogId: blog.id }} className="font-typewriter text-xs underline decoration-wavy hover:text-primary transition-colors">
         Edit Manuscript
       </Link>
-      <span className="material-symbols-outlined text-slate-400" data-icon="edit_note">edit_note</span>
+      <span className="material-symbols-outlined text-slate-400" data-icon="edit_note" aria-hidden="true">
+        edit_note
+      </span>
     </div>
   );
 }
@@ -81,6 +113,7 @@ export const MyBlogCard = Object.assign(MyBlogCardRoot, {
   Content: MyBlogCardContent,
   CreatedAt: MyBlogCardCreatedAt,
   UpdatedAt: MyBlogCardUpdatedAt,
+  Metadata: MyBlogCardMetadata,
   Status: MyBlogCardStatus,
   Actions: MyBlogCardActions,
 });

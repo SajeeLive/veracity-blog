@@ -81,10 +81,11 @@ function SignUpComponent() {
         const regResponse = await registerPasskey(handle);
         console.log("Registration successful, verifying with server...");
 
-        const verification = await trpcClient.webauthn.verifyRegistration.mutate({
-          handle,
-          response: regResponse,
-        });
+        const verification =
+          await trpcClient.webauthn.verifyRegistration.mutate({
+            handle,
+            response: regResponse,
+          });
 
         if (verification.verified) {
           flow.succeedRegistration();

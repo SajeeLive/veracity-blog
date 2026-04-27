@@ -116,7 +116,9 @@ function WriteBlogPost() {
                       placeholder="Title of your new entry..."
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
-                      <em className="text-xs text-destructive font-mono">{field.state.meta.errors.join(', ')}</em>
+                      <em className="text-xs text-destructive font-mono">
+                        {field.state.meta.errors.map((err: any) => typeof err === 'object' && err?.message ? err.message : String(err)).join(', ')}
+                      </em>
                     ) : null}
                   </div>
                 )}
@@ -146,7 +148,9 @@ function WriteBlogPost() {
                       spellCheck="false"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
-                      <em className="text-xs text-destructive font-mono">{field.state.meta.errors.join(', ')}</em>
+                      <em className="text-xs text-destructive font-mono">
+                        {field.state.meta.errors.map((err: any) => typeof err === 'object' && err?.message ? err.message : String(err)).join(', ')}
+                      </em>
                     ) : null}
                   </div>
                 )}

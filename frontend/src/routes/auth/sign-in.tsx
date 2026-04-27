@@ -154,7 +154,7 @@ function SignInComponent() {
           <form.Field
             name="handle"
             validators={{
-              onChange: ({ value }) =>
+              onSubmit: ({ value }) =>
                 !value ? "Author handle is required" : undefined,
             }}
             children={(field) => {

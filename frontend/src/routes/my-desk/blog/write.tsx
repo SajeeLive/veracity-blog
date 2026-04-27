@@ -6,57 +6,11 @@ import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { BLOG_LIMITS } from '@/lib/constants'
-import { useReducer } from 'react'
+import { useFormFlow } from '@/hooks/useFormFlow'
 
 export const Route = createFileRoute('/my-desk/blog/write')({
   component: WriteBlogPost,
 })
-
-// --- Form State Machine ---
-
-type FormState =
-  | { status: 'idle' }
-  | { status: 'submitting' }
-  | { status: 'error'; message: string }
-  | { status: 'success' };
-
-type FormAction =
-  | { type: 'SUBMIT' }
-  | { type: 'FAIL'; message: string }
-  | { type: 'SUCCESS' }
-  | { type: 'RETRY' };
-
-function formReducer(state: FormState, action: FormAction): FormState {
-  switch (action.type) {
-    case 'SUBMIT':
-      return { status: 'submitting' };
-    case 'FAIL':
-      return { status: 'error', message: action.message };
-    case 'SUCCESS':
-      return { status: 'success' };
-    case 'RETRY':
-      return { status: 'idle' };
-    default:
-      return state;
-  }
-}
-
-function useFormFlow() {
-  const [state, dispatch] = useReducer(formReducer, { status: 'idle' });
-
-  const startSubmit = () => dispatch({ type: 'SUBMIT' });
-  const failSubmit = (message: string) => dispatch({ type: 'FAIL', message });
-  const succeedSubmit = () => dispatch({ type: 'SUCCESS' });
-  const retrySubmit = () => dispatch({ type: 'RETRY' });
-
-  return {
-    state,
-    startSubmit,
-    failSubmit,
-    succeedSubmit,
-    retrySubmit,
-  };
-}
 
 const CreateBlogSchema = z.object({
   title: z.string().min(BLOG_LIMITS.TITLE.MIN, `Title must be at least ${BLOG_LIMITS.TITLE.MIN} characters`).max(BLOG_LIMITS.TITLE.MAX, `Title cannot exceed ${BLOG_LIMITS.TITLE.MAX} characters`),

@@ -156,10 +156,27 @@ function HeaderLoginButton({ className }: ButtonProps) {
   );
 }
 
+function HeaderWriteButton({ className }: ButtonProps) {
+  const { isAuthenticated } = useHeaderContext();
+  if (!isAuthenticated) return null;
+  return (
+    <Link 
+      to="/my-desk/blog/write" 
+      className={cn(
+        "stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center no-underline whitespace-nowrap",
+        className
+      )}
+    >
+      Write
+    </Link>
+  );
+}
+
 function HeaderMyDeskButton({ className }: ButtonProps) {
   const { isAuthenticated } = useHeaderContext();
+  const location = useLocation();
   
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || location.pathname.startsWith('/my-desk')) return null;
 
   return (
     <Link 
@@ -241,6 +258,7 @@ function HeaderMobileMenu() {
           </DrawerHeader>
           <div className="flex flex-col gap-4 p-6">
             <HeaderLoginButton className="py-4 text-lg" />
+            <HeaderWriteButton className="py-4 text-lg" />
             <HeaderMyDeskButton className="py-4 text-lg" />
             <HeaderLogoutButton className="py-4 text-lg" />
           </div>
@@ -258,6 +276,7 @@ export const Header = Object.assign(HeaderRoot, {
   Title: HeaderTitle,
   Search: HeaderSearch,
   LoginButton: HeaderLoginButton,
+  WriteButton: HeaderWriteButton,
   MyDeskButton: HeaderMyDeskButton,
   LogoutButton: HeaderLogoutButton,
   CloseButton: HeaderCloseButton,

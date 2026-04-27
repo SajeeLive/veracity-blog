@@ -40,6 +40,7 @@ function RootComponent() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4">
           <Header.LoginButton />
+          <Header.WriteButton />
           <Header.MyDeskButton />
           <Header.LogoutButton />
         </div>

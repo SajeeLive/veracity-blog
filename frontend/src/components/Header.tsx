@@ -13,6 +13,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/lib/trpc/client";
 
 // --- Context ---
 interface HeaderContextType {
@@ -175,18 +177,25 @@ function HeaderMyDeskButton({ className }: ButtonProps) {
 function HeaderLogoutButton({ className }: ButtonProps) {
   const { isAuthenticated } = useHeaderContext();
   const logout = useAppStore((state) => state.logout);
+  const signOutMutation = useMutation(trpc.auth.signOut.mutationOptions({
+    onSuccess: () => {
+      logout();
+      window.location.href = "/";
+    },
+  }));
 
   if (!isAuthenticated) return null;
 
   return (
     <button 
-      onClick={logout} 
+      onClick={() => signOutMutation.mutate()} 
+      disabled={signOutMutation.isPending}
       className={cn(
-        "stamped-ink px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center border-none whitespace-nowrap",
+        "sketchy-border px-4 py-2 font-typewriter text-sm font-bold uppercase tracking-widest cursor-pointer inline-block text-center bg-transparent text-primary-container whitespace-nowrap disabled:opacity-50",
         className
       )}
     >
-      Logout
+      {signOutMutation.isPending ? "Exiting..." : "Logout"}
     </button>
   );
 }

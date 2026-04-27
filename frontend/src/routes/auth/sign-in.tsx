@@ -18,7 +18,8 @@ function SignInComponent() {
   const login = useAppStore((state) => state.login)
 
   const handleSignIn = () => {
-    login()
+    // Mock login for placeholder component
+    login({ id: 'mock-id', handle: 'mock-user' })
     // Using any as a workaround for potential type issues with 'to' before routes are generated
     navigate({ to: (redirect || '/my-desk') as any })
   }

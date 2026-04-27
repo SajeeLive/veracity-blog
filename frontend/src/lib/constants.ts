@@ -5,6 +5,6 @@ export const BLOG_LIMITS = {
   },
   CONTENT: {
     MIN: 10,
-    MAX: 10000,
+    MAX: 1000,
   },
 } as const;

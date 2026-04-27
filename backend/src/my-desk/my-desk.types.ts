@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const BLOG_LIMITS = {
   TITLE: { MIN: 5, MAX: 100 },
-  CONTENT: { MIN: 10, MAX: 10000 },
+  CONTENT: { MIN: 10, MAX: 1000 },
 } as const;
 
 export const GetMyBlogsSchema = z.object({
@@ -16,8 +16,16 @@ export type GetMyBlogsInput = z.infer<typeof GetMyBlogsSchema>;
 
 export const UpdateMyBlogSchema = z.object({
   id: z.string().uuid(),
-  title: z.string().min(BLOG_LIMITS.TITLE.MIN).max(BLOG_LIMITS.TITLE.MAX).optional(),
-  content: z.string().min(BLOG_LIMITS.CONTENT.MIN).max(BLOG_LIMITS.CONTENT.MAX).optional(),
+  title: z
+    .string()
+    .min(BLOG_LIMITS.TITLE.MIN)
+    .max(BLOG_LIMITS.TITLE.MAX)
+    .optional(),
+  content: z
+    .string()
+    .min(BLOG_LIMITS.CONTENT.MIN)
+    .max(BLOG_LIMITS.CONTENT.MAX)
+    .optional(),
   isDeleted: z.boolean().optional(),
 });
 

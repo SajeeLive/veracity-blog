@@ -79,7 +79,7 @@ function MyDeskIndex() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 max-w-7xl mx-auto pb-20 min-h-[800px] grid-auto-rows-min">
         {isLoading || (isFetching && !data) ? (
           Array.from({ length: 6 }).map((_, index) => {
-            const rotationClass = index % 3 === 1 ? 'rotate-1' : index % 3 === 2 ? '-rotate-1' : '';
+            const rotationClass = rotations[index % rotations.length];
             return <MyBlogCard.Skeleton key={index} rotationClass={rotationClass} />;
           })
         ) : error ? (

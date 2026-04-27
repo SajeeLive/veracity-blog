@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useAppStore } from '@/store/appStore'
 
 export const Route = createFileRoute('/my-desk')({
@@ -25,23 +25,6 @@ function MyDeskLayout() {
         <h1 className="text-4xl font-bold tracking-tight">
           {user?.handle ? `${user.handle}'s Desk` : "Author's Desk"}
         </h1>
-        <nav className="flex gap-4 border-b border-border pb-4">
-          <Link
-            to="/my-desk"
-            className="text-sm font-medium hover:text-primary transition-colors [&.active]:text-primary [&.active]:border-b-2 [&.active]:border-primary"
-            activeOptions={{
-              exact: true,
-            }}
-          >
-            Overview
-          </Link>
-          <Link
-            to="/my-desk/blog/write"
-            className="text-sm font-medium hover:text-primary transition-colors [&.active]:text-primary [&.active]:border-b-2 [&.active]:border-primary"
-          >
-            Write New
-          </Link>
-        </nav>
       </div>
       <Outlet />
     </div>

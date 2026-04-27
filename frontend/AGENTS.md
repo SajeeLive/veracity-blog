@@ -13,3 +13,7 @@ Before substantial work:
 When implementing forms (e.g., sign up, sign in, create blog):
 - **Library:** Always use TanStack Form.
 - **State Management:** Employ React `useReducer` and Finite State Machine (FSM) patterns to ensure form states are managed deterministically and are easy to reason about.
+- **Form Submission:** Employ React `useTransition` for non-blocking form submission.
+
+## State toggle
+1. If a state toggle has a side-effect of making an API call (ex: toggle delete state of a Blog), employ React `useOptimistic` for non-blocking interaction.

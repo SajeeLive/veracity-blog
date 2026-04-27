@@ -32,7 +32,7 @@ export function MyBlogCardRoot({ blog, rotationClass, children }: { blog: MyBlog
   return (
     <MyBlogCardContext.Provider value={{ blog }}>
       <article 
-        className={cn("relative group transition-transform duration-300", rotationClass)}
+        className={cn("relative group transition-transform duration-300 h-min", rotationClass)}
         aria-labelledby={`blog-title-${blog.id}`}
       >
         <div className="absolute -right-4 -bottom-4 w-full h-full hatch-shadow -z-10"></div>

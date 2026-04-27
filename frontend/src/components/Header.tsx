@@ -90,7 +90,9 @@ function HeaderSearch() {
     return () => clearTimeout(handler);
   }, [searchQuery, setDebouncedSearchQuery, setIsSearching]);
 
-  const isSearchHidden = location.pathname.startsWith("/blog/") || location.pathname.startsWith("/auth");
+  const isSearchHidden = location.pathname.startsWith("/blog/") ||
+    location.pathname.startsWith("/auth") ||
+    location.pathname.startsWith("/my-desk/blog/");
   if (isSearchHidden) return null;
 
   return (

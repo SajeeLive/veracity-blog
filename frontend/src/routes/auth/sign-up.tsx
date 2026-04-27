@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { registerPasskey } from "../../lib/webauthn";
 import { useTransition, useReducer } from "react";
 import { Button } from "../../components/ui/button";
 import { trpcClient } from "../../lib/trpc/client";
+import { useAppStore } from "../../store/appStore";
 
 export const Route = createFileRoute("/auth/sign-up")({
   component: SignUpComponent,
@@ -64,6 +65,8 @@ function useRegistrationFlow() {
 function SignUpComponent() {
   const [isPending, startTransition] = useTransition();
   const flow = useRegistrationFlow();
+  const login = useAppStore((state) => state.login);
+  const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
@@ -79,7 +82,6 @@ function SignUpComponent() {
       try {
         const handle = value.handle;
         const regResponse = await registerPasskey(handle);
-        console.log("Registration successful, verifying with server...");
 
         const verification =
           await trpcClient.webauthn.verifyRegistration.mutate({
@@ -87,11 +89,18 @@ function SignUpComponent() {
             response: regResponse,
           });
 
-        if (verification.verified) {
-          flow.succeedRegistration();
-        } else {
+        if (!verification.verified || !verification.user) {
           flow.failRegistration("Server verification failed.");
+          return;
         }
+
+        flow.succeedRegistration();
+        login(verification.user);
+
+        // Small delay to show success state before redirecting
+        setTimeout(() => {
+          navigate({ to: "/" });
+        }, 1500);
       } catch (err: any) {
         if (err.name === "InvalidStateError") {
           flow.failRegistration("This device is already registered.");

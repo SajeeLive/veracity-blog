@@ -10,7 +10,7 @@ import {
   verifyRegistrationResponse,
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
-  AuthenticatorTransportFuture
+  AuthenticatorTransportFuture,
 } from '@simplewebauthn/server';
 import { PrismaService } from '../prisma/prisma.service';
 import { randomUUID } from 'crypto';

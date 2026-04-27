@@ -11,7 +11,15 @@ export class AuthRouter {
         return ctx.user;
       }),
       signOut: this.trpc.procedure.mutation(({ ctx }) => {
-        ctx.res.clearCookie('session');
+        const isProd =
+          process.env.NODE_ENV === 'production' ||
+          process.env.FRONTEND_URL?.startsWith('https://');
+
+        ctx.res.clearCookie('session', {
+          httpOnly: true,
+          secure: isProd,
+          sameSite: isProd ? 'none' : 'lax',
+        });
         return { success: true };
       }),
     });

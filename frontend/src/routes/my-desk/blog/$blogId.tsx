@@ -14,8 +14,8 @@ export const Route = createFileRoute('/my-desk/blog/$blogId')({
 })
 
 const UpdateBlogSchema = z.object({
-  title: z.string().min(BLOG_LIMITS.TITLE.MIN).max(BLOG_LIMITS.TITLE.MAX),
-  content: z.string().min(BLOG_LIMITS.CONTENT.MIN).max(BLOG_LIMITS.CONTENT.MAX),
+  title: z.string().min(BLOG_LIMITS.TITLE.MIN, `Title must be at least ${BLOG_LIMITS.TITLE.MIN} characters`).max(BLOG_LIMITS.TITLE.MAX, `Title cannot exceed ${BLOG_LIMITS.TITLE.MAX} characters`),
+  content: z.string().min(BLOG_LIMITS.CONTENT.MIN, `Content must be at least ${BLOG_LIMITS.CONTENT.MIN} characters`).max(BLOG_LIMITS.CONTENT.MAX, `Content cannot exceed ${BLOG_LIMITS.CONTENT.MAX.toLocaleString()} characters`),
   isDeleted: z.boolean(),
 })
 

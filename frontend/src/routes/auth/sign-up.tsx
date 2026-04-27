@@ -151,8 +151,6 @@ function SignUpComponent() {
             validators={{
               onChange: ({ value }) =>
                 !value ? "Author handle is required" : undefined,
-              onBlur: ({ value }) =>
-                !value ? "Author handle is required" : undefined,
             }}
             children={(field) => {
               const hasError =

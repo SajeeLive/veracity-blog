@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface AppState {
+export interface AppState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   debouncedSearchQuery: string;

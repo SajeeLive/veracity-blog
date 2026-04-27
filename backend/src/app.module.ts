@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WebauthnModule } from './webauthn/webauthn.module';
 import { AuthModule } from './auth/auth.module';
+import { MyDeskModule } from './my-desk/my-desk.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     WebauthnModule,
     AuthModule,
+    MyDeskModule,
   ],
   controllers: [AppController],
   providers: [AppService],

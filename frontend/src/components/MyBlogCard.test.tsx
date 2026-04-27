@@ -32,7 +32,8 @@ describe('MyBlogCard', () => {
   it('renders metadata correctly', () => {
     render(
       <MyBlogCard blog={mockBlog}>
-        <MyBlogCard.Metadata />
+        <MyBlogCard.CreatedAt />
+        <MyBlogCard.UpdatedAt />
       </MyBlogCard>
     );
 

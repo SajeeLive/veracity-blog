@@ -1,9 +1,18 @@
+import React, { Suspense } from "react";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Header } from "@/components/Header";
 import { trpc } from "@/lib/trpc/client";
 import { useAppStore, AppState } from "@/store/appStore";
 import { Toaster } from "@/components/ui/sonner";
+
+const TanStackRouterDevtools =
+  process.env.NODE_ENV === "production"
+    ? () => null // Render nothing in production
+    : React.lazy(() =>
+        import("@tanstack/react-router-devtools").then((res) => ({
+          default: res.TanStackRouterDevtools,
+        })),
+      );
 
 interface MyRouterContext extends AppState {
   trpc: typeof trpc;
@@ -39,7 +48,9 @@ function RootComponent() {
       </main>
 
       <Toaster />
-      <TanStackRouterDevtools />
+      <Suspense>
+        <TanStackRouterDevtools />
+      </Suspense>
     </div>
   );
 }

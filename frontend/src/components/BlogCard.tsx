@@ -34,9 +34,9 @@ export interface BlogCardRootProps {
 export function BlogCardRoot({ post, rotationClass, children }: BlogCardRootProps) {
   return (
     <BlogCardContext.Provider value={{ post, rotationClass }}>
-      <article className={`relative h-full ${rotationClass || ''}`}>
+      <article className={`relative ${rotationClass || ''}`}>
         <div className="absolute inset-0 translate-x-3 translate-y-3 hatch-shadow group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-200"></div>
-        <div className="relative h-full bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col">
+        <div className="relative bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col">
           {children}
         </div>
       </article>
@@ -119,9 +119,9 @@ BlogCard.CreatedAt = BlogCardCreatedAt;
 
 export function BlogCardSkeleton({ rotationClass }: { rotationClass?: string }) {
   return (
-    <div className={`relative h-full ${rotationClass || ''}`}>
+    <div className={`relative ${rotationClass || ''}`}>
       <div className="absolute inset-0 translate-x-3 translate-y-3 hatch-shadow"></div>
-      <div className="relative h-full bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col animate-pulse">
+      <div className="relative bg-white p-8 torn-edge sketchy-border min-h-[400px] flex flex-col animate-pulse">
         <header className="mb-6">
           <div className="h-8 bg-primary/10 w-3/4 mb-2"></div>
           <div className="w-full h-px bg-[#36454f33] mt-2"></div>

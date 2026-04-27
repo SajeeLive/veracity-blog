@@ -36,7 +36,7 @@ export function MyBlogCardRoot({ blog, rotationClass, children }: { blog: MyBlog
         aria-labelledby={`blog-title-${blog.id}`}
       >
         <div className="absolute -right-4 -bottom-4 w-full h-full hatch-shadow -z-10"></div>
-        <div className="bg-[#FDFCF0] p-8 sketchy-border relative flex flex-col h-full">
+        <div className="bg-[#FDFCF0] p-8 sketchy-border relative flex flex-col">
           {children}
         </div>
       </article>
@@ -129,7 +129,7 @@ export function MyBlogCardSkeleton({ rotationClass }: MyBlogCardSkeletonProps) {
       className={cn("relative group transition-transform duration-300 animate-pulse", rotationClass)}
     >
       <div className="absolute -right-4 -bottom-4 w-full h-full hatch-shadow -z-10 bg-gray-200"></div>
-      <div className="bg-[#FDFCF0] p-8 sketchy-border relative flex flex-col h-full">
+      <div className="bg-[#FDFCF0] p-8 sketchy-border relative flex flex-col">
         <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
         <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
         <div className="h-4 bg-gray-200 rounded w-5/6 mb-6"></div>

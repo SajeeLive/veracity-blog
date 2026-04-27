@@ -16,7 +16,6 @@ export class MyDeskService {
     const items = await this.prisma.blog.findMany({
       where: {
         userId,
-        isDeleted,
         AND: [
           search
             ? {

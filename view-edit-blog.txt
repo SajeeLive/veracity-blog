@@ -1,0 +1,11 @@
+let's implement the screen 'frontend/src/routes/my-desk/blog/$blogId.tsx' to completion.
+
+include back nav button to '/my-desk'. refer back nav button of 'frontend/src/routes/blog/$blogId.tsx'.
+
+preview the blog post in a form. editable title, content and is deleted status.
+form submission button.
+there is a character count on title and content. display character count.
+refer procedure 'updateMyBlog' in 'backend/src/my-desk/my-desk.router.ts'
+include blog metabdata in form: created at, updated at.
+
+for the design of the blog edit form, refer template: view-edit-blog-template.html

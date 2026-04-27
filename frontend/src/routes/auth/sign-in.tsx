@@ -108,7 +108,7 @@ function SignInComponent() {
         if (err.name === "NotAllowedError") {
           flow.failAuth("Authentication cancelled or not allowed.");
         } else if (err.message?.includes("User not found")) {
-          flow.failAuth("Author handle not found.");
+          flow.failAuth("Are you new here? Consider signing up first.");
         } else {
           flow.failAuth(err.message || "Authentication failed");
         }

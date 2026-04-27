@@ -21,13 +21,13 @@ function MyDeskIndex() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    status,
+    isPending,
+    isError,
   } = useInfiniteQuery(
     trpc.myDesk.getMyBlogs.infiniteQueryOptions(
       { search: debouncedSearchQuery, take: 6 },
       {
         getNextPageParam: (lastPage: { nextCursor?: { id: string } }) => lastPage.nextCursor,
-        initialPageParam: undefined as { id: string } | undefined,
       }
     )
   );
@@ -38,10 +38,12 @@ function MyDeskIndex() {
     }
   }, [inView, hasNextPage, fetchNextPage]);
 
-  if (status === 'pending') return <div className="text-center font-mono opacity-50 py-20">Opening archives...</div>;
-  if (status === 'error') return <div className="text-center font-mono text-error py-20">Failed to reach the desk.</div>;
+  if (isPending) return <div className="text-center font-mono opacity-50 py-20">Opening archives...</div>;
+  if (isError) return <div className="text-center font-mono text-error py-20">Failed to reach the desk.</div>;
 
-  const blogs = data.pages.flatMap((page) => page.items) as MyBlog[];
+  const blogs = data?.pages.flatMap((page) => page.items) as MyBlog[] | undefined;
+
+  if (!blogs) return null;
 
   return (
     <div className="space-y-12">

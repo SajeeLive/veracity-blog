@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
 import { cn } from "@/lib/utils";
 import {
@@ -194,10 +194,12 @@ function HeaderMyDeskButton({ className }: ButtonProps) {
 function HeaderLogoutButton({ className }: ButtonProps) {
   const { isAuthenticated } = useHeaderContext();
   const logout = useAppStore((state) => state.logout);
+  const navigate = useNavigate();
+
   const signOutMutation = useMutation(trpc.auth.signOut.mutationOptions({
     onSuccess: () => {
       logout();
-      window.location.href = "/";
+      navigate({ to: "/" });
     },
   }));
 

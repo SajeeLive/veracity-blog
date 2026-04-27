@@ -11,12 +11,11 @@ export class MyDeskService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getMyBlogs(userId: string, params: GetMyBlogsInput) {
-    const { cursor, take, search, isDeleted } = params;
+    const { cursor, take, search } = params;
 
     const items = await this.prisma.blog.findMany({
       where: {
         userId,
-        isDeleted,
         AND: [
           search
             ? {

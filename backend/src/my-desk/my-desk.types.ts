@@ -9,7 +9,6 @@ export const GetMyBlogsSchema = z.object({
   cursor: z.object({ id: z.string() }).optional(),
   take: z.number().min(1).max(100).optional().default(10),
   search: z.string().optional(),
-  isDeleted: z.boolean().optional().default(false),
 });
 
 export type GetMyBlogsInput = z.infer<typeof GetMyBlogsSchema>;

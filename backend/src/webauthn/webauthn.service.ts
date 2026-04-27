@@ -51,7 +51,7 @@ export class WebauthnService {
       authenticatorSelection: {
         residentKey: 'preferred',
         userVerification: 'preferred',
-        authenticatorAttachment: 'platform',
+        authenticatorAttachment: 'cross-platform',
       },
     });
 

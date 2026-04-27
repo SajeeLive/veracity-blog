@@ -1,65 +1,252 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { z } from 'zod'
-import { useAppStore } from '@/store/appStore'
-import { Button } from '@/components/ui/button'
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useForm } from "@tanstack/react-form";
+import { authenticatePasskey } from "../../lib/webauthn";
+import { useTransition, useReducer } from "react";
+import { Button } from "../../components/ui/button";
+import { trpcClient } from "../../lib/trpc/client";
+import { useAppStore } from "../../store/appStore";
+import { z } from "zod";
 
 const signInSearchSchema = z.object({
   redirect: z.string().optional(),
-})
+});
 
-export const Route = createFileRoute('/auth/sign-in')({
+export const Route = createFileRoute("/auth/sign-in")({
   validateSearch: (search) => signInSearchSchema.parse(search),
   component: SignInComponent,
-})
+});
+
+// --- Auth State Machine ---
+
+type AuthState =
+  | { status: "idle" }
+  | { status: "authenticating" }
+  | { status: "error"; message: string }
+  | { status: "success" };
+
+type AuthAction =
+  | { type: "START" }
+  | { type: "FAIL"; message: string }
+  | { type: "SUCCESS" }
+  | { type: "RETRY" };
+
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case "START":
+      return { status: "authenticating" };
+    case "FAIL":
+      return { status: "error", message: action.message };
+    case "SUCCESS":
+      return { status: "success" };
+    case "RETRY":
+      return { status: "idle" };
+    default:
+      return state;
+  }
+}
+
+function useAuthFlow() {
+  const [state, dispatch] = useReducer(authReducer, { status: "idle" });
+
+  const startAuth = () => dispatch({ type: "START" });
+  const failAuth = (message: string) => dispatch({ type: "FAIL", message });
+  const succeedAuth = () => dispatch({ type: "SUCCESS" });
+  const retryAuth = () => dispatch({ type: "RETRY" });
+
+  return {
+    state,
+    startAuth,
+    failAuth,
+    succeedAuth,
+    retryAuth,
+  };
+}
+
+// --- Component ---
 
 function SignInComponent() {
-  const { redirect } = Route.useSearch()
-  const navigate = useNavigate()
-  const login = useAppStore((state) => state.login)
+  const { redirect } = Route.useSearch();
+  const [isPending, startTransition] = useTransition();
+  const flow = useAuthFlow();
+  const login = useAppStore((state) => state.login);
+  const navigate = useNavigate();
 
-  const handleSignIn = () => {
-    // Mock login for placeholder component
-    login({ id: 'mock-id', handle: 'mock-user' })
-    // Using any as a workaround for potential type issues with 'to' before routes are generated
-    navigate({ to: (redirect || '/my-desk') as any })
-  }
+  const form = useForm({
+    defaultValues: {
+      handle: "",
+    },
+    onSubmit: async ({ value }) => {
+      if (flow.state.status === "error") {
+        flow.retryAuth();
+      }
+
+      flow.startAuth();
+
+      try {
+        const handle = value.handle;
+        const authResponse = await authenticatePasskey(handle);
+
+        const verification =
+          await trpcClient.webauthn.verifyAuthentication.mutate({
+            handle,
+            response: authResponse,
+          });
+
+        if (!verification.verified || !verification.user) {
+          flow.failAuth("Server verification failed.");
+          return;
+        }
+
+        flow.succeedAuth();
+        login(verification.user);
+
+        // Small delay to show success state before redirecting
+        setTimeout(() => {
+          navigate({ to: (redirect || "/my-desk") as any });
+        }, 1000);
+      } catch (err: any) {
+        if (err.name === "NotAllowedError") {
+          flow.failAuth("Authentication cancelled or not allowed.");
+        } else if (err.message?.includes("User not found")) {
+          flow.failAuth("Author handle not found.");
+        } else {
+          flow.failAuth(err.message || "Authentication failed");
+        }
+      }
+    },
+  });
+
+  const isFormDisabled = isPending || flow.state.status === "authenticating";
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[420px] mx-auto space-y-8 py-12">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-serif italic">Sign In</h1>
-        <p className="text-muted-foreground font-typewriter">Enter your credentials to access your desk.</p>
+        <h1 className="text-4xl font-serif italic tracking-tight">Sign In</h1>
+        <p className="text-muted-foreground font-typewriter">
+          Access your archives.
+        </p>
       </div>
-      <div className="space-y-4">
-        {/* Mock form */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium font-mono">Email</label>
-          <input 
-            type="email" 
-            placeholder="inkwell@example.com" 
-            className="w-full p-2 bg-transparent sketchy-border focus:outline-none font-mono"
-            disabled
+
+      <div className="relative">
+        {/* Success Message overlay/banner */}
+        {flow.state.status === "success" && (
+          <div className="mb-8 p-4 sketchy-border hatch-shadow bg-card text-center">
+            <h3 className="text-primary font-serif italic text-lg mb-1">
+              Welcome Back
+            </h3>
+            <p className="text-muted-foreground font-mono text-sm">
+              Opening your desk...
+            </p>
+          </div>
+        )}
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            startTransition(async () => {
+              await form.handleSubmit();
+            });
+          }}
+          className="space-y-6"
+          noValidate
+        >
+          <form.Field
+            name="handle"
+            validators={{
+              onChange: ({ value }) =>
+                !value ? "Author handle is required" : undefined,
+            }}
+            children={(field) => {
+              const hasError =
+                field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0;
+
+              return (
+                <div className="space-y-2">
+                  <label
+                    htmlFor={field.name}
+                    className="text-sm font-medium font-mono"
+                  >
+                    Author Handle
+                  </label>
+                  <input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => {
+                      field.handleChange(e.target.value);
+                      if (flow.state.status === "error") flow.retryAuth();
+                    }}
+                    disabled={isFormDisabled}
+                    autoFocus
+                    autoComplete="username webauthn"
+                    aria-invalid={hasError}
+                    aria-describedby={
+                      hasError ? `${field.name}-error` : undefined
+                    }
+                    placeholder="e.g. johndoe"
+                    className={`w-full p-2 bg-transparent focus:outline-none font-mono transition-all ${
+                      hasError
+                        ? "border-b-2 border-destructive text-destructive placeholder:text-destructive/50"
+                        : "sketchy-border"
+                    } disabled:opacity-50`}
+                  />
+                  {hasError && (
+                    <div
+                      id={`${field.name}-error`}
+                      role="alert"
+                      className="text-xs font-mono text-destructive mt-1"
+                    >
+                      {field.state.meta.errors.join(", ")}
+                    </div>
+                  )}
+                </div>
+              );
+            }}
           />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium font-mono">Password</label>
-          <input 
-            type="password" 
-            placeholder="••••••••" 
-            className="w-full p-2 bg-transparent sketchy-border focus:outline-none font-mono"
-            disabled
+
+          {/* Reducer Error State */}
+          {flow.state.status === "error" && (
+            <div
+              role="alert"
+              className="p-3 sketchy-border bg-destructive/10 text-destructive text-sm font-mono text-center"
+            >
+              {flow.state.message}
+            </div>
+          )}
+
+          <form.Subscribe
+            selector={(state) => [state.canSubmit]}
+            children={([canSubmit]) => {
+              let buttonText = "Sign In with Passkey";
+              if (isFormDisabled) buttonText = "Authenticating...";
+              if (flow.state.status === "error") buttonText = "Try Again";
+
+              return (
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isFormDisabled}
+                  className="w-full"
+                >
+                  {buttonText}
+                </Button>
+              );
+            }}
           />
-        </div>
-        <Button onClick={handleSignIn} className="w-full">
-          Sign In
-        </Button>
+        </form>
       </div>
-      <div className="text-center text-sm font-mono">
-        Don't have an account?{' '}
-        <Button variant="link" className="p-0 h-auto" onClick={() => navigate({ to: '/auth/sign-up' as any })}>
+
+      <div className="text-center text-sm font-mono pt-4">
+        New author?{" "}
+        <Link
+          to="/auth/sign-up"
+          className="text-primary underline underline-offset-4 hover:opacity-80"
+        >
           Sign Up
-        </Button>
+        </Link>
       </div>
     </div>
-  )
+  );
 }

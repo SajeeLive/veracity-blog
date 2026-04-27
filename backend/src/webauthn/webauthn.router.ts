@@ -5,6 +5,8 @@ import { AuthService } from '../auth/auth.service';
 import {
   getRegistrationOptionsSchema,
   verifyRegistrationSchema,
+  getAuthenticationOptionsSchema,
+  verifyAuthenticationSchema,
 } from './webauthn.types';
 
 @Injectable()
@@ -28,6 +30,35 @@ export class WebauthnRouter {
         .input(verifyRegistrationSchema)
         .mutation(async ({ input, ctx }) => {
           const user = await this.webauthnService.verifyRegistration(
+            input.handle,
+            input.response,
+          );
+
+          const token = this.authService.signSession({
+            sub: user.id,
+            handle: user.handle,
+          });
+
+          ctx.res.cookie('session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+
+          return { verified: true, user };
+        }),
+      getAuthenticationOptions: this.trpc.procedure
+        .input(getAuthenticationOptionsSchema)
+        .query(async ({ input }) => {
+          return await this.webauthnService.getAuthenticationOptions(
+            input.handle,
+          );
+        }),
+      verifyAuthentication: this.trpc.procedure
+        .input(verifyAuthenticationSchema)
+        .mutation(async ({ input, ctx }) => {
+          const user = await this.webauthnService.verifyAuthentication(
             input.handle,
             input.response,
           );

@@ -1,9 +1,10 @@
-import { createFileRoute, Outlet, redirect, Link } from '@tanstack/react-router'
+import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
 import { useAppStore } from '@/store/appStore'
 
 export const Route = createFileRoute('/my-desk')({
-  beforeLoad: ({ context, location }) => {
-    if (!context.isAuthenticated) {
+  beforeLoad: ({ location }) => {
+    const { isAuthenticated } = useAppStore.getState();
+    if (!isAuthenticated) {
       throw redirect({
         to: '/auth/sign-in',
         search: {

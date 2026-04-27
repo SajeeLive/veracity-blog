@@ -126,17 +126,24 @@ interface MyBlogCardSkeletonProps {
 export function MyBlogCardSkeleton({ rotationClass }: MyBlogCardSkeletonProps) {
   return (
     <article 
-      className={cn("relative group transition-transform duration-300 animate-pulse", rotationClass)}
+      className={cn("relative group transition-transform duration-300 animate-pulse h-min", rotationClass)}
     >
       <div className="absolute -right-4 -bottom-4 w-full h-full hatch-shadow -z-10 bg-gray-200"></div>
       <div className="bg-[#FDFCF0] p-8 sketchy-border relative flex flex-col">
+        {/* Title */}
         <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-5/6 mb-6"></div>
+        {/* Content */}
+        <div className="space-y-2 mb-6">
+          <div className="h-4 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+        </div>
+        {/* Metadata */}
         <div className="mt-auto space-y-1">
           <div className="h-3 bg-gray-200 rounded w-1/2"></div>
           <div className="h-3 bg-gray-200 rounded w-2/3"></div>
         </div>
+        {/* Actions */}
         <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center">
           <div className="h-4 bg-gray-300 rounded w-1/3"></div>
           <div className="h-6 w-6 bg-gray-300 rounded-full"></div>

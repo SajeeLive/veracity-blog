@@ -39,10 +39,14 @@ export class WebauthnRouter {
             handle: user.handle,
           });
 
+          const isProd =
+            process.env.NODE_ENV === 'production' ||
+            process.env.FRONTEND_URL?.startsWith('https://');
+
           ctx.res.cookie('session', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 
@@ -68,10 +72,14 @@ export class WebauthnRouter {
             handle: user.handle,
           });
 
+          const isProd =
+            process.env.NODE_ENV === 'production' ||
+            process.env.FRONTEND_URL?.startsWith('https://');
+
           ctx.res.cookie('session', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 

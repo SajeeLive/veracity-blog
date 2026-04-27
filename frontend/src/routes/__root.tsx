@@ -6,7 +6,7 @@ import { useAppStore, AppState } from "@/store/appStore";
 import { Toaster } from "@/components/ui/sonner";
 
 const TanStackRouterDevtools =
-  process.env.NODE_ENV === "production"
+  import.meta.env.PROD
     ? () => null // Render nothing in production
     : React.lazy(() =>
         import("@tanstack/react-router-devtools").then((res) => ({
@@ -23,7 +23,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootComponent() {
-  const { isAuthenticated } = useAppStore();
+  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
 
   return (
     <div className="min-h-screen bg-background font-mono text-foreground selection:bg-primary-container selection:text-white">
@@ -48,7 +48,7 @@ function RootComponent() {
       </main>
 
       <Toaster />
-      <Suspense>
+      <Suspense fallback={null}>
         <TanStackRouterDevtools />
       </Suspense>
     </div>

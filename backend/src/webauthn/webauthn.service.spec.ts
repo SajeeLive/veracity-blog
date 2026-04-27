@@ -155,7 +155,7 @@ describe('WebauthnService', () => {
 
     const result = await service.verifyRegistration('test', response as any);
 
-    expect(result).toEqual({ verified: true });
+    expect(result).toEqual({ id: 'user-id', handle: 'test' });
     expect(prisma.$transaction).toHaveBeenCalled();
   });
 });

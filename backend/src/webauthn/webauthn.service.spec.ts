@@ -26,9 +26,10 @@ describe('WebauthnService', () => {
             authChallenge: {
               findFirst: jest.fn(),
               delete: jest.fn().mockResolvedValue({}),
+              create: jest.fn(),
             },
-            passkey: { create: jest.fn() },
-            $transaction: jest.fn((cb) => cb(prisma)),
+            passkey: { create: jest.fn(), update: jest.fn() },
+            $transaction: jest.fn((cb) => (Array.isArray(cb) ? Promise.all(cb) : cb(prisma))),
           },
         },
         {
@@ -157,5 +158,93 @@ describe('WebauthnService', () => {
 
     expect(result).toEqual({ id: 'user-id', handle: 'test' });
     expect(prisma.$transaction).toHaveBeenCalled();
+  });
+
+  describe('Authentication', () => {
+    it('should throw BadRequestException if user not found for auth options', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      await expect(service.getAuthenticationOptions('test')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should successfully generate authentication options', async () => {
+      const user = {
+        id: 'user-id',
+        handle: 'test',
+        passkeys: [{ id: 'cred-id', transports: 'usb,nfc' }],
+      };
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(user);
+      (simplewebauthn.generateAuthenticationOptions as jest.Mock).mockResolvedValue(
+        { challenge: 'auth-challenge' },
+      );
+
+      const result = await service.getAuthenticationOptions('test');
+
+      expect(result).toEqual({ challenge: 'auth-challenge' });
+      expect(prisma.authChallenge.create).toHaveBeenCalled();
+      expect(simplewebauthn.generateAuthenticationOptions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          allowCredentials: [
+            { id: 'cred-id', transports: ['usb', 'nfc'] },
+          ],
+        }),
+      );
+    });
+
+    it('should throw UnauthorizedException if challenge not found for authentication', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-id' });
+      (prisma.authChallenge.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const response = {
+        id: 'cred-id',
+        response: {
+          clientDataJSON: Buffer.from(
+            JSON.stringify({ challenge: 'test-challenge' }),
+          ).toString('base64url'),
+        },
+      };
+
+      await expect(
+        service.verifyAuthentication('test', response as any),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should successfully verify authentication', async () => {
+      const user = {
+        id: 'user-id',
+        handle: 'test',
+        passkeys: [{ id: 'cred-id', publicKey: Buffer.from('pk'), counter: 10n }],
+      };
+      const challenge = { id: 'challenge-id', challenge: 'test-challenge' };
+
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(user);
+      (prisma.authChallenge.findFirst as jest.Mock).mockResolvedValue(challenge);
+      (simplewebauthn.verifyAuthenticationResponse as jest.Mock).mockResolvedValue(
+        {
+          verified: true,
+          authenticationInfo: { newCounter: 11 },
+        },
+      );
+
+      const response = {
+        id: 'cred-id',
+        response: {
+          clientDataJSON: Buffer.from(
+            JSON.stringify({ challenge: 'test-challenge' }),
+          ).toString('base64url'),
+        },
+      };
+
+      const result = await service.verifyAuthentication('test', response as any);
+
+      expect(result).toEqual({ id: 'user-id', handle: 'test' });
+      expect(prisma.passkey.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'cred-id' },
+          data: { counter: 11n },
+        }),
+      );
+    });
   });
 });

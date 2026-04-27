@@ -8,3 +8,12 @@ export const verifyRegistrationSchema = z.object({
   handle: z.string().min(1, 'Handle is required'),
   response: z.any(), // RegistrationResponseJSON
 });
+
+export const getAuthenticationOptionsSchema = z.object({
+  handle: z.string().min(1, 'Handle is required'),
+});
+
+export const verifyAuthenticationSchema = z.object({
+  handle: z.string().min(1, 'Handle is required'),
+  response: z.any(), // AuthenticationResponseJSON
+});

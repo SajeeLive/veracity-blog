@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { trpc } from "@/lib/trpc/client";
 import { useAppStore } from "@/store/appStore";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 interface MyRouterContext {
   isAuthenticated: boolean;
@@ -17,14 +18,16 @@ function RootComponent() {
   const { isAuthenticated, setUser } = useAppStore();
   
   // Hydrate auth state from session cookie
-  const { data: user, isSuccess } = trpc.auth.getMe.useQuery(undefined, {
-    retry: false,
-    staleTime: Infinity,
-  });
+  const { data: user, isSuccess } = useQuery(
+    trpc.auth.getMe.queryOptions(undefined, {
+      retry: false,
+      staleTime: Infinity,
+    })
+  );
 
   useEffect(() => {
     if (isSuccess) {
-      setUser(user);
+      setUser(user ?? null);
     }
   }, [isSuccess, user, setUser]);
 

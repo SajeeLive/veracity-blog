@@ -4,17 +4,19 @@ import { TrpcModule } from './trpc/trpc.module';
 import { BlogModule } from './blog/blog.module';
 import { envSchema } from './config/env.validation';
 import webauthnConfig from './config/webauthn.config';
+import authConfig from './config/auth.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WebauthnModule } from './webauthn/webauthn.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // No need to import into other modules
       validate: (config) => envSchema.parse(config),
-      load: [webauthnConfig],
+      load: [webauthnConfig, authConfig],
       envFilePath: '.env',
       expandVariables: true,
     }),
@@ -22,6 +24,7 @@ import { WebauthnModule } from './webauthn/webauthn.module';
     BlogModule,
     PrismaModule,
     WebauthnModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

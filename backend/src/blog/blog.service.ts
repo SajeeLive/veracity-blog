@@ -26,7 +26,9 @@ export class BlogService {
                 OR: [
                   { title: { contains: search, mode: 'insensitive' } },
                   { content: { contains: search, mode: 'insensitive' } },
-                  { user: { handle: { contains: search, mode: 'insensitive' } } },
+                  {
+                    user: { handle: { contains: search, mode: 'insensitive' } },
+                  },
                 ],
               }
             : {},

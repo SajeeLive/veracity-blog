@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { registerPasskey } from "../../lib/webauthn";
 import { useTransition, useReducer } from "react";
 import { Button } from "../../components/ui/button";
+import { trpcClient } from "../../lib/trpc/client";
 
 export const Route = createFileRoute("/auth/sign-up")({
   component: SignUpComponent,
@@ -78,8 +79,19 @@ function SignUpComponent() {
       try {
         const handle = value.handle;
         const regResponse = await registerPasskey(handle);
-        console.log("Registration successful:", regResponse);
-        flow.succeedRegistration();
+        console.log("Registration successful, verifying with server...");
+
+        const verification =
+          await trpcClient.webauthn.verifyRegistration.mutate({
+            handle,
+            response: regResponse,
+          });
+
+        if (verification.verified) {
+          flow.succeedRegistration();
+        } else {
+          flow.failRegistration("Server verification failed.");
+        }
       } catch (err: any) {
         if (err.name === "InvalidStateError") {
           flow.failRegistration("This device is already registered.");
@@ -106,10 +118,10 @@ function SignUpComponent() {
         {flow.state.status === "success" && (
           <div className="mb-8 p-4 sketchy-border hatch-shadow bg-card text-center">
             <h3 className="text-primary font-serif italic text-lg mb-1">
-              Passkey Created!
+              Welcome to Veracity
             </h3>
             <p className="text-muted-foreground font-mono text-sm">
-              Waiting for server verification implementation.
+              Your passkey is registered. You can now sign in.
             </p>
           </div>
         )}

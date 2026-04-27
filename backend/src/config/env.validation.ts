@@ -9,6 +9,9 @@ export const envSchema = z.object({
   DATABASE_PORT: z.coerce.number(),
   DATABASE_NAME: z.string(),
 
+  JWT_SECRET: z.string().min(32),
+  COOKIE_SECRET: z.string().min(32),
+
   // Add other vars here as you go
 });
 

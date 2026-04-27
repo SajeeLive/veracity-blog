@@ -8,7 +8,9 @@ interface AppState {
   isSearching: boolean;
   setIsSearching: (isSearching: boolean) => void;
   isAuthenticated: boolean;
-  login: () => void;
+  user: { id: string; handle: string } | null;
+  setUser: (user: { id: string; handle: string } | null) => void;
+  login: (user: { id: string; handle: string }) => void;
   logout: () => void;
 }
 
@@ -20,6 +22,8 @@ export const useAppStore = create<AppState>((set) => ({
   isSearching: false,
   setIsSearching: (isSearching) => set({ isSearching }),
   isAuthenticated: false,
-  login: () => set({ isAuthenticated: true }),
-  logout: () => set({ isAuthenticated: false }),
+  user: null,
+  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  login: (user) => set({ user, isAuthenticated: true }),
+  logout: () => set({ user: null, isAuthenticated: false }),
 }));
